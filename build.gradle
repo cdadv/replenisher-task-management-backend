@@ -1,0 +1,33 @@
+buildscript {
+    repositories {
+        mavenLocal()      // ~/.m2/repoitory/
+        mavenCentral()    // https://repo1.maven.org/maven2/
+    }
+    dependencies {
+    }
+}
+
+allprojects {
+    apply plugin: 'idea'
+    apply plugin: 'java'
+}
+
+subprojects {
+    apply plugin: 'maven' // gradle install
+
+    afterEvaluate {
+        if (project.plugins.hasPlugin('java')) {
+            sourceCompatibility = JavaVersion.VERSION_1_8
+        }
+    }
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    // gradle publish
+    // ~/.m2/repoitory/com/company/project/<*>/0.0.1/<prod>-0.0.1.jar
+    project.group = 'com.walmart.labs'
+    project.version = '1.0-SNAPSHOT'
+}
