@@ -3,7 +3,7 @@ package com.walmart.labs.domain;
 import javax.persistence.Id;
 import org.springframework.security.core.GrantedAuthority;
 
-public class Operation implements GrantedAuthority {
+public class RoleOperation implements GrantedAuthority {
 
   /**
    * The ids of the roles and operations you create in your database would be the GrantedAuthority
@@ -24,7 +24,7 @@ public class Operation implements GrantedAuthority {
    * roles and make them available by the method getAuthorities() in the returned UserDetails
    * instance.
    *
-   * <p>Same as {@link Role}
+   * <p>Same as {@link UserRole}
    */
   @Id private String id;
 

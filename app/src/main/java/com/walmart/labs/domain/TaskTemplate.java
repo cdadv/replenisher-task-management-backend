@@ -1,17 +1,22 @@
 package com.walmart.labs.domain;
 
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Lob;
+import org.hibernate.annotations.Type;
 
 /** For fields' documentations refer to {@link Task} domain */
 @Entity
 public class TaskTemplate {
   private String name;
 
-  @Lob private String description;
+  @Column(length = 65535, columnDefinition = "Text")
+  @Type(type = "text")
+  private String description;
 
-  @Lob private String note;
+  @Column(length = 65535, columnDefinition = "Text")
+  @Type(type = "text")
+  private String note;
 
   /** Frontend can use duration to calculate the estimated finishing date */
   private long estimatedDuration;

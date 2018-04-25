@@ -8,9 +8,9 @@ import javax.persistence.OneToMany;
 import org.springframework.security.core.GrantedAuthority;
 
 @Entity
-public class Role implements GrantedAuthority {
+public class UserRole implements GrantedAuthority {
 
-  @OneToMany private final List<Operation> allowedOperationList = new ArrayList<>();
+  @OneToMany private final List<RoleOperation> allowedRoleOperationList = new ArrayList<>();
   /**
    * The ids of the roles and operations you create in your database would be the GrantedAuthority
    * representation, e.g. "ROLE_ADMIN", "OP_DELETE_ACCOUNT" etc. When a user is authenticated, make
@@ -30,7 +30,7 @@ public class Role implements GrantedAuthority {
    * roles and make them available by the method getAuthorities() in the returned UserDetails
    * instance.
    *
-   * <p>Same as {@link Operation}
+   * <p>Same as {@link RoleOperation}
    */
   @Id private String id;
 
@@ -42,8 +42,8 @@ public class Role implements GrantedAuthority {
     this.id = id;
   }
 
-  public List<Operation> getAllowedOperationList() {
-    return allowedOperationList;
+  public List<RoleOperation> getAllowedRoleOperationList() {
+    return allowedRoleOperationList;
   }
 
   @Override
