@@ -49,7 +49,7 @@ public class UserRole extends BasicDomain implements GrantedAuthority {
   )
   private Collection<RolePrivilege> allowedPrivilegeList;
 
-  public UserRole(){}
+  public UserRole() {}
 
   public UserRole(String name) {
     this.name = name;

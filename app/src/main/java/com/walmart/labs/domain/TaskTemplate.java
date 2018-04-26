@@ -29,8 +29,7 @@ public class TaskTemplate extends BasicDomain {
 
   private String recurringPeriodCronExpression;
 
-  @OneToOne
-  private Corporation corporation;
+  @OneToOne private Corporation corporation;
 
   @ManyToMany
   @JoinTable(

@@ -8,7 +8,7 @@ public class Corporation extends BasicDomain {
   /** Corporation name */
   private String name;
 
-  public Corporation(){}
+  public Corporation() {}
 
   public Corporation(String name) {
     this.name = name;
