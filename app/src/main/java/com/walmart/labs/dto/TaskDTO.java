@@ -1,22 +1,39 @@
 package com.walmart.labs.dto;
 
+import com.walmart.labs.domain.Task;
 import java.util.Date;
 import java.util.List;
 
-/** DTO used for creating and editing task object */
+/**
+ * TaskDTO used for creating and editing task object
+ *
+ * <p>For more fields information refer to {@link Task}
+ */
 public class TaskDTO {
+  // required field
   private String name;
+  // required field
   private String taskStatusString;
+  // optional field
   private String description;
+  // optional field
   private String note;
+  // optional field
   private String feedback;
+  // required field
   // new Date(timeInputLong * 1000);
   private Date timeInput;
+  // required field
   private Date timeEstimatedFinish;
+  // optional field
   private boolean isRecurring;
+  // optional field
   private String recurringPeriodCronExpression;
+  // required field
   private Long corporationId;
+  // required field
   private List<Long> assignedStaffIdList;
+  // required field
   private List<Long> managerIdList;
 
   public String getName() {

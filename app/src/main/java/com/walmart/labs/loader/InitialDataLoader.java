@@ -61,7 +61,8 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
     //        createPrivilegeIfNotFound("PRIVILEGE_USER_STAFF_TASK_DELETE");
 
     /**
-     * Manager GET task privilege contains query all the tasks that they managed of the corporation. (Set as reporter)
+     * Manager GET task privilege contains query all the tasks that they managed of the corporation.
+     * (Set as reporter)
      */
     RolePrivilege privilegeUserManagerTaskGet =
         createPrivilegeIfNotFound("PRIVILEGE_USER_MANAGER_TASK_GET");
@@ -70,9 +71,7 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
      */
     RolePrivilege privilegeUserManagerTaskPost =
         createPrivilegeIfNotFound("PRIVILEGE_USER_MANAGER_TASK_POST");
-    /**
-     * Manager PUT task privilege contains edit tasks for all the staffs of the corporation.
-     */
+    /** Manager PUT task privilege contains edit tasks for all the staffs of the corporation. */
     RolePrivilege privilegeUserManagerTaskPut =
         createPrivilegeIfNotFound("PRIVILEGE_USER_MANAGER_TASK_PUT");
     /**
@@ -81,6 +80,10 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
     RolePrivilege privilegeUserManagerTaskDelete =
         createPrivilegeIfNotFound("PRIVILEGE_USER_MANAGER_TASK_DELETE");
 
+    /**
+     * Admin role contains privilegeAdminAllGet, privilegeAdminAllPost, privilegeAdminAllPut,
+     * privilegeAdminAllDelete
+     */
     List<RolePrivilege> privilegeAdminList =
         Arrays.asList(
             privilegeAdminAllGet,
@@ -89,13 +92,19 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
             privilegeAdminAllDelete);
     UserRole roleAdmin = createRoleIfNotFound("ROLE_ADMIN", privilegeAdminList);
 
+    /**
+     * User staff role contains privilegeUserStaffTaskGet, privilegeUserStaffTaskPost,
+     * privilegeUserStaffTaskPut
+     */
     List<RolePrivilege> privilegeUserStaffList =
         Arrays.asList(
-            privilegeUserStaffTaskGet,
-            privilegeUserStaffTaskPost,
-            privilegeUserStaffTaskPut);
+            privilegeUserStaffTaskGet, privilegeUserStaffTaskPost, privilegeUserStaffTaskPut);
     UserRole roleUserStaff = createRoleIfNotFound("ROLE_USER_STAFF", privilegeUserStaffList);
 
+    /**
+     * manager role contains privilegeUserManagerTaskGet, privilegeUserManagerTaskPost,
+     * privilegeUserManagerTaskPut, privilegeUserManagerTaskDelete
+     */
     List<RolePrivilege> privilegeUserManagerList =
         Arrays.asList(
             privilegeUserManagerTaskGet,
@@ -106,6 +115,7 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
 
     Corporation corporationDemo = createCorporationIfNotFound("CORPORATION_DEMO");
 
+    /** Admin user initialization. */
     User userAdmin = new User();
     userAdmin.setUsername("admin_user");
     // TODO: encrypt the password
@@ -114,6 +124,7 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
     userAdmin.setAllowedRoleList(Arrays.asList(roleAdmin));
     userAdmin.setEnabled(true);
 
+    /** User staff user initialization. */
     User userStaff = new User();
     userStaff.setUsername("staff_user");
     // TODO: encrypt the password
@@ -122,6 +133,7 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
     userStaff.setAllowedRoleList(Arrays.asList(roleUserStaff));
     userStaff.setEnabled(true);
 
+    /** User manager user initialization. */
     User userManager = new User();
     userManager.setUsername("manager_user");
     // TODO: encrypt the password

@@ -35,7 +35,7 @@ public class RolePrivilege extends BasicDomain implements GrantedAuthority {
   @ManyToMany(mappedBy = "allowedPrivilegeList")
   private Collection<UserRole> roleList;
 
-  public RolePrivilege(){}
+  public RolePrivilege() {}
 
   public RolePrivilege(String name) {
     this.name = name;

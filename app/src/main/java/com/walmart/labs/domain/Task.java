@@ -51,7 +51,8 @@ public class Task extends BasicDomain {
    * an estimated finish time in {@link Date} format. Backend will calculate the difference between
    * created time and finish time to get the duration. duration is in milli-seconds.
    *
-   * Date timeEstimatedFinish = DateUtils.addMilliseconds(timeInput.getTime(), estimatedDuration);
+   * <p>Date timeEstimatedFinish = DateUtils.addMilliseconds(timeInput.getTime(),
+   * estimatedDuration);
    */
   private long estimatedDuration;
 
@@ -65,8 +66,7 @@ public class Task extends BasicDomain {
    */
   private String recurringPeriodCronExpression;
 
-  @OneToOne
-  private Corporation corporation;
+  @OneToOne private Corporation corporation;
 
   /** List of staff that are assigned to this task */
   @ManyToMany

@@ -1,36 +1,36 @@
 {
-	"info": {
-		"_postman_id": "d1bc549b-5bf9-4c75-bb76-d8aaa865dcf1",
-		"name": "walmart-coding-challenge",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-	},
-	"item": [
-		{
-			"name": "createTask",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n\t\"name\": \"task_cleaning_bathroom\",\n\t\"taskStatusString\": \"CREATED\",\n\t\"description\": \"this is a test task.\",\n\t\"note\": \"Anne needs to clean the bathroom.\",\n\t\"feedback\": \"bathroom is not clean enough.\",\n\t\"timeInput\": 1523957223008,\n\t\"timeEstimatedFinish\": 1523958223008,\n\t\"isRecurring\": false,\n\t\"recurringPeriodCronExpression\": \"will be ignored\",\n\t\"corporationId\": 1,\n\t\"assignedStaffIdList\": [1],\n\t\"managerIdList\": [1]\n}"
-				},
-				"url": {
-					"raw": "localhost:8080/task",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"task"
-					]
-				}
-			},
-			"response": []
-		}
-	]
+  "info": {
+    "_postman_id": "d1bc549b-5bf9-4c75-bb76-d8aaa865dcf1",
+    "name": "walmart-coding-challenge",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "createTask",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n\t\"name\": \"task_cleaning_bathroom\",\n\t\"taskStatusString\": \"CREATED\",\n\t\"description\": \"this is a test task.\",\n\t\"note\": \"Anne needs to clean the bathroom.\",\n\t\"feedback\": \"bathroom is not clean enough.\",\n\t\"timeInput\": 1523957223008,\n\t\"timeEstimatedFinish\": 1523958223008,\n\t\"isRecurring\": false,\n\t\"recurringPeriodCronExpression\": \"will be ignored\",\n\t\"corporationId\": 1,\n\t\"assignedStaffIdList\": [1],\n\t\"managerIdList\": [1]\n}"
+        },
+        "url": {
+          "raw": "localhost:8080/task",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "task"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
 }
