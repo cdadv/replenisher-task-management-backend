@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserRepository extends JpaRepository<User, Long> {
   List<User> findAllByIdInAndCorporation(List<Long> userIdList, Corporation corporation);
+
+  User findByUsername(String username);
 }

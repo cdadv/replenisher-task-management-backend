@@ -2,6 +2,7 @@ package com.walmart.labs.domain;
 
 import java.util.Collection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,9 +25,9 @@ public class RolePrivilege extends BasicDomain implements GrantedAuthority {
    *
    * <p>If a user logs it, it will have: ROLE_USER, PRIVILEGE_READ
    *
-   * <p>The UserDetailsService would take care to collect all roleList and all operations of those
-   * roleList and make them available by the method getAuthorities() in the returned UserDetails
-   * instance.
+   * <p>The ApplicationUserDetailsService would take care to collect all roleList and all operations
+   * of those roleList and make them available by the method getAuthorities() in the returned
+   * UserDetails instance.
    *
    * <p>Same as {@link UserRole}
    */

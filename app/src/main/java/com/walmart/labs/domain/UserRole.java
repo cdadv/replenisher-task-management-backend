@@ -1,7 +1,9 @@
 package com.walmart.labs.domain;
 
 import java.util.Collection;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -26,8 +28,8 @@ public class UserRole extends BasicDomain implements GrantedAuthority {
    *
    * <p>If a user logs it, it will have: ROLE_USER, PRIVILEGE_READ
    *
-   * <p>The UserDetailsService would take care to collect all roles and all operations of those
-   * roles and make them available by the method getAuthorities() in the returned UserDetails
+   * <p>The ApplicationUserDetailsService would take care to collect all roles and all operations of
+   * those roles and make them available by the method getAuthorities() in the returned UserDetails
    * instance.
    *
    * <p>Same as {@link RolePrivilege}
@@ -41,7 +43,7 @@ public class UserRole extends BasicDomain implements GrantedAuthority {
   @ManyToMany(mappedBy = "allowedRoleList")
   private Collection<User> userList;
 
-  @ManyToMany
+  @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
     name = "role_privilege_mapping",
     joinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"),

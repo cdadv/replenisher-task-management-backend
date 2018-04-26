@@ -14,6 +14,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -119,28 +120,37 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
     User userAdmin = new User();
     userAdmin.setUsername("admin_user");
     // TODO: encrypt the password
-    userAdmin.setPassword("admin_password");
+    userAdmin.setPassword(new BCryptPasswordEncoder().encode("admin_password"));
     userAdmin.setCorporation(corporationDemo);
     userAdmin.setAllowedRoleList(Arrays.asList(roleAdmin));
     userAdmin.setEnabled(true);
+    userAdmin.setAccountNonExpired(true);
+    userAdmin.setAccountNonLocked(true);
+    userAdmin.setCredentialsNonExpired(true);
 
     /** User staff user initialization. */
     User userStaff = new User();
     userStaff.setUsername("staff_user");
     // TODO: encrypt the password
-    userStaff.setPassword("staff_password");
+    userStaff.setPassword(new BCryptPasswordEncoder().encode("staff_password"));
     userStaff.setCorporation(corporationDemo);
     userStaff.setAllowedRoleList(Arrays.asList(roleUserStaff));
     userStaff.setEnabled(true);
+    userAdmin.setAccountNonExpired(true);
+    userAdmin.setAccountNonLocked(true);
+    userAdmin.setCredentialsNonExpired(true);
 
     /** User manager user initialization. */
     User userManager = new User();
     userManager.setUsername("manager_user");
     // TODO: encrypt the password
-    userManager.setPassword("manager_password");
+    userManager.setPassword(new BCryptPasswordEncoder().encode("manager_password"));
     userManager.setCorporation(corporationDemo);
     userManager.setAllowedRoleList(Arrays.asList(roleUserManager));
     userManager.setEnabled(true);
+    userAdmin.setAccountNonExpired(true);
+    userAdmin.setAccountNonLocked(true);
+    userAdmin.setCredentialsNonExpired(true);
 
     userRepository.saveAll(Arrays.asList(userAdmin, userStaff, userManager));
 

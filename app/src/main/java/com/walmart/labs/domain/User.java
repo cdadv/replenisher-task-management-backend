@@ -2,19 +2,23 @@ package com.walmart.labs.domain;
 
 import java.util.Collection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 
 @Entity
-public class User extends BasicDomain {
+public class User extends BasicDomain implements UserDetails {
   /** List of allowedRoleList the use has */
-  @ManyToMany
+  @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
-    name = "user_role_mapping",
-    joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-    inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
+      name = "user_role_mapping",
+      joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+      inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
   )
   private Collection<UserRole> allowedRoleList;
 
@@ -39,6 +43,12 @@ public class User extends BasicDomain {
   private boolean enabled;
 
   private boolean deleted;
+
+  private boolean accountNonExpired;
+
+  private boolean accountNonLocked;
+
+  private boolean credentialsNonExpired;
 
   public Collection<UserRole> getAllowedRoleList() {
     return allowedRoleList;
@@ -96,6 +106,11 @@ public class User extends BasicDomain {
     this.username = username;
   }
 
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return allowedRoleList;
+  }
+
   public String getPassword() {
     return password;
   }
@@ -118,5 +133,32 @@ public class User extends BasicDomain {
 
   public void setDeleted(boolean deleted) {
     this.deleted = deleted;
+  }
+
+  @Override
+  public boolean isAccountNonExpired() {
+    return accountNonExpired;
+  }
+
+  public void setAccountNonExpired(boolean accountNonExpired) {
+    this.accountNonExpired = accountNonExpired;
+  }
+
+  @Override
+  public boolean isAccountNonLocked() {
+    return accountNonLocked;
+  }
+
+  public void setAccountNonLocked(boolean accountNonLocked) {
+    this.accountNonLocked = accountNonLocked;
+  }
+
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return credentialsNonExpired;
+  }
+
+  public void setCredentialsNonExpired(boolean credentialsNonExpired) {
+    this.credentialsNonExpired = credentialsNonExpired;
   }
 }
