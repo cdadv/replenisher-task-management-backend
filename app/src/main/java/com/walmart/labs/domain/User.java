@@ -9,16 +9,15 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.transaction.annotation.Transactional;
 
 @Entity
 public class User extends BasicDomain implements UserDetails {
   /** List of allowedRoleList the use has */
   @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
-      name = "user_role_mapping",
-      joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-      inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
+    name = "user_role_mapping",
+    joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+    inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
   )
   private Collection<UserRole> allowedRoleList;
 
