@@ -3,11 +3,15 @@ package com.walmart.labs.domain;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 import org.hibernate.annotations.Type;
 
 /** For fields' documentations refer to {@link Task} domain */
 @Entity
-public class TaskTemplate {
+public class TaskTemplate extends BasicDomain {
   private String name;
 
   @Column(length = 65535, columnDefinition = "Text")
@@ -25,8 +29,23 @@ public class TaskTemplate {
 
   private String recurringPeriodCronExpression;
 
-  private List<User> assignedStaffList;
+  @OneToOne
+  private Corporation corporation;
 
+  @ManyToMany
+  @JoinTable(
+    name = "task_template_staff_user_mapping",
+    joinColumns = @JoinColumn(name = "task_template_id", referencedColumnName = "id"),
+    inverseJoinColumns = @JoinColumn(name = "staff_user_id", referencedColumnName = "id")
+  )
+  private List<User> staffList;
+
+  @ManyToMany
+  @JoinTable(
+    name = "task_template_manager_user_mapping",
+    joinColumns = @JoinColumn(name = "task_template_id", referencedColumnName = "id"),
+    inverseJoinColumns = @JoinColumn(name = "manager_user_id", referencedColumnName = "id")
+  )
   private List<User> managerList;
 
   public String getName() {
@@ -77,12 +96,20 @@ public class TaskTemplate {
     this.recurringPeriodCronExpression = recurringPeriodCronExpression;
   }
 
-  public List<User> getAssignedStaffList() {
-    return assignedStaffList;
+  public Corporation getCorporation() {
+    return corporation;
   }
 
-  public void setAssignedStaffList(List<User> assignedStaffList) {
-    this.assignedStaffList = assignedStaffList;
+  public void setCorporation(Corporation corporation) {
+    this.corporation = corporation;
+  }
+
+  public List<User> getStaffList() {
+    return staffList;
+  }
+
+  public void setStaffList(List<User> staffList) {
+    this.staffList = staffList;
   }
 
   public List<User> getManagerList() {

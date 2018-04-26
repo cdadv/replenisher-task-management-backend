@@ -1,53 +1,86 @@
 package com.walmart.labs.domain;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import org.springframework.security.core.GrantedAuthority;
 
 @Entity
-public class UserRole implements GrantedAuthority {
-
-  @OneToMany private final List<RoleOperation> allowedRoleOperationList = new ArrayList<>();
+@Table(name = "role")
+public class UserRole extends BasicDomain implements GrantedAuthority {
   /**
-   * The ids of the roles and operations you create in your database would be the GrantedAuthority
-   * representation, e.g. "ROLE_ADMIN", "OP_DELETE_ACCOUNT" etc. When a user is authenticated, make
-   * sure that all GrantedAuthorities of all its roles and the corresponding operations are returned
-   * from the UserDetails.getAuthorities() method.
+   * The name of the roles and privilege you create in your database would be the GrantedAuthority
+   * representation, e.g. "ROLE_ADMIN", "PRIVILEGE_WRITE" etc. When a user is authenticated, make
+   * sure that all GrantedAuthorities of all its roles and the corresponding allowedPrivilegeList
+   * are returned from the UserDetails.getAuthorities() method.
    *
-   * <p>Example: The admin role with id ROLE_ADMIN has the operations OP_DELETE_ACCOUNT,
-   * OP_READ_ACCOUNT, OP_RUN_BATCH_JOB assigned to it. The user role with id ROLE_USER has the
-   * operation OP_READ_ACCOUNT.
+   * <p>Example: The admin role with id ROLE_ADMIN has the operations PRIVILEGE_WRITE,
+   * PRIVILEGE_READ assigned to it. The user role with id ROLE_USER has the operation
+   * PRIVILEGE_READ.
    *
    * <p>If an admin logs in the resulting security context will have the GrantedAuthorities:
-   * ROLE_ADMIN, OP_DELETE_ACCOUNT, OP_READ_ACCOUNT, OP_RUN_BATCH_JOB
+   * ROLE_ADMIN, PRIVILEGE_WRITE, PRIVILEGE_READ
    *
-   * <p>If a user logs it, it will have: ROLE_USER, OP_READ_ACCOUNT
+   * <p>If a user logs it, it will have: ROLE_USER, PRIVILEGE_READ
    *
    * <p>The UserDetailsService would take care to collect all roles and all operations of those
    * roles and make them available by the method getAuthorities() in the returned UserDetails
    * instance.
    *
-   * <p>Same as {@link RoleOperation}
+   * <p>Same as {@link RolePrivilege}
    */
-  @Id private String id;
+  private String name;
 
-  public String getId() {
-    return id;
-  }
+  /**
+   * MappedBy list of user because of the ManyToMany relationship between {@link User} and {@link
+   * UserRole}
+   */
+  @ManyToMany(mappedBy = "allowedRoleList")
+  private Collection<User> userList;
 
-  public void setId(String id) {
-    this.id = id;
-  }
+  @ManyToMany
+  @JoinTable(
+    name = "role_privilege_mapping",
+    joinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"),
+    inverseJoinColumns = @JoinColumn(name = "privilege_id", referencedColumnName = "id")
+  )
+  private Collection<RolePrivilege> allowedPrivilegeList;
 
-  public List<RoleOperation> getAllowedRoleOperationList() {
-    return allowedRoleOperationList;
+  public UserRole(){}
+
+  public UserRole(String name) {
+    this.name = name;
   }
 
   @Override
   public String getAuthority() {
-    return id;
+    return name;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public Collection<User> getUserList() {
+    return userList;
+  }
+
+  public void setUserList(Collection<User> userList) {
+    this.userList = userList;
+  }
+
+  public Collection<RolePrivilege> getAllowedPrivilegeList() {
+    return allowedPrivilegeList;
+  }
+
+  public void setAllowedPrivilegeList(Collection<RolePrivilege> allowedPrivilegeList) {
+    this.allowedPrivilegeList = allowedPrivilegeList;
   }
 }

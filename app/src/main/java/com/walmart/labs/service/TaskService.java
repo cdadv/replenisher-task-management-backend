@@ -13,13 +13,17 @@ import com.walmart.labs.repository.UserRoleRepository;
 import com.walmart.labs.util.ValidationService;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.EntityNotFoundException;
+import javax.swing.text.html.Option;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class TaskService {
   private static final Logger logger = LoggerFactory.getLogger(TaskService.class);
 
@@ -104,13 +108,16 @@ public class TaskService {
     } else {
       task.setRecurring(false);
     }
+
     Corporation corporation = null;
     Long corporationId = taskDTO.getCorporationId();
     if (corporationId != null) {
-      try {
-        corporation = corporationRepository.getOne(corporationId);
+
+      Optional<Corporation> optionalCorporation = corporationRepository.findById(corporationId);
+      if (optionalCorporation.isPresent()) {
+        corporation = optionalCorporation.get();
         task.setCorporation(corporation);
-      } catch (EntityNotFoundException e) {
+      } else {
         // TODO: error handling
         throw new RuntimeException();
       }
@@ -121,12 +128,12 @@ public class TaskService {
 
     List<Long> assignedStaffIdList = taskDTO.getAssignedStaffIdList();
     if (assignedStaffIdList != null && !assignedStaffIdList.isEmpty()) {
-      UserRole staffRole = userRoleRepository.getOne("ROLE_APP_STAFF");
+      // TODO: check if provided staff id refer to a staff
       List<User> assignedStaffList =
-          userRepository.findAllByIdInAndCorporationAndUserRoleListContains(
-              assignedStaffIdList, corporation, staffRole);
+          userRepository.findAllByIdInAndCorporation(
+              assignedStaffIdList, corporation);
       if (assignedStaffList != null && !assignedStaffList.isEmpty()) {
-        task.setAssignedStaffList(assignedStaffList);
+        task.setStaffList(assignedStaffList);
       } else {
         // TODO: error handling
         throw new RuntimeException();
@@ -138,10 +145,10 @@ public class TaskService {
 
     List<Long> managerIdList = taskDTO.getManagerIdList();
     if (managerIdList != null && !managerIdList.isEmpty()) {
-      UserRole managerRole = userRoleRepository.getOne("ROLE_APP_MANAGER");
+      // TODO: check if provided manager id refer to a manager
       List<User> managerList =
-          userRepository.findAllByIdInAndCorporationAndUserRoleListContains(
-              managerIdList, corporation, managerRole);
+          userRepository.findAllByIdInAndCorporation(
+              managerIdList, corporation);
       if (managerList != null && !managerList.isEmpty()) {
         task.setManagerList(managerList);
       } else {

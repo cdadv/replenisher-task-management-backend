@@ -4,6 +4,12 @@ import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 import org.hibernate.annotations.Type;
 
 @Entity
@@ -16,6 +22,7 @@ public class Task extends BasicDomain {
    * <p>JsonDeserializer may be used when deserialize dto(in json format) request from frontend or
    * other backend
    */
+  @Enumerated(EnumType.STRING)
   private TaskStatus taskStatus;
   /**
    * Claim that notes field is created as LongText type column in database for storing descriptions,
@@ -42,7 +49,9 @@ public class Task extends BasicDomain {
   /**
    * Estimated finish task time for getting time estimated to perform the task. Frontend may pass in
    * an estimated finish time in {@link Date} format. Backend will calculate the difference between
-   * created time and finish time to get the duration.
+   * created time and finish time to get the duration. duration is in milli-seconds.
+   *
+   * Date timeEstimatedFinish = DateUtils.addMilliseconds(timeInput.getTime(), estimatedDuration);
    */
   private long estimatedDuration;
 
@@ -56,12 +65,25 @@ public class Task extends BasicDomain {
    */
   private String recurringPeriodCronExpression;
 
+  @OneToOne
   private Corporation corporation;
 
-  /** List of staffs that are assigned to this task */
-  private List<User> assignedStaffList;
+  /** List of staff that are assigned to this task */
+  @ManyToMany
+  @JoinTable(
+    name = "task_staff_user_mapping",
+    joinColumns = @JoinColumn(name = "task_id", referencedColumnName = "id"),
+    inverseJoinColumns = @JoinColumn(name = "staff_user_id", referencedColumnName = "id")
+  )
+  private List<User> staffList;
 
-  /** List of managers that manage this task */
+  /** List of manager that manage this task */
+  @ManyToMany
+  @JoinTable(
+    name = "task_manager_user_mapping",
+    joinColumns = @JoinColumn(name = "task_id", referencedColumnName = "id"),
+    inverseJoinColumns = @JoinColumn(name = "manager_user_id", referencedColumnName = "id")
+  )
   private List<User> managerList;
 
   // TODO: consider add submitter and editor information either in here or user
@@ -146,12 +168,12 @@ public class Task extends BasicDomain {
     this.corporation = corporation;
   }
 
-  public List<User> getAssignedStaffList() {
-    return assignedStaffList;
+  public List<User> getStaffList() {
+    return staffList;
   }
 
-  public void setAssignedStaffList(List<User> assignedStaffList) {
-    this.assignedStaffList = assignedStaffList;
+  public void setStaffList(List<User> staffList) {
+    this.staffList = staffList;
   }
 
   public List<User> getManagerList() {
