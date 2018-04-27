@@ -404,6 +404,7 @@ public class TaskService {
       taskDTO = new TaskDTO();
     }
     // Don't need to check task's fields.
+    taskDTO.setId(task.getId());
     taskDTO.setName(task.getName());
     taskDTO.setTaskStatusString(task.getTaskStatus().name());
     taskDTO.setTaskPriorityString(task.getTaskPriority().name());
