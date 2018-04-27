@@ -1,7 +1,8 @@
 package com.walmart.labs.domain;
 
-import java.util.Collection;
+import java.util.Set;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -14,8 +15,8 @@ public class UserRole extends BasicDomain implements GrantedAuthority {
   /**
    * The name of the roles and privilege you create in your database would be the GrantedAuthority
    * representation, e.g. "ROLE_ADMIN", "PRIVILEGE_WRITE" etc. When a user is authenticated, make
-   * sure that all GrantedAuthorities of all its roles and the corresponding allowedPrivilegeList
-   * are returned from the UserDetails.getAuthorities() method.
+   * sure that all GrantedAuthorities of all its roles and the corresponding allowedPrivilegeSet are
+   * returned from the UserDetails.getAuthorities() method.
    *
    * <p>Example: The admin role with id ROLE_ADMIN has the operations PRIVILEGE_WRITE,
    * PRIVILEGE_READ assigned to it. The user role with id ROLE_USER has the operation
@@ -26,8 +27,8 @@ public class UserRole extends BasicDomain implements GrantedAuthority {
    *
    * <p>If a user logs it, it will have: ROLE_USER, PRIVILEGE_READ
    *
-   * <p>The UserDetailsService would take care to collect all roles and all operations of those
-   * roles and make them available by the method getAuthorities() in the returned UserDetails
+   * <p>The ApplicationUserDetailsService would take care to collect all roles and all operations of
+   * those roles and make them available by the method getAuthorities() in the returned UserDetails
    * instance.
    *
    * <p>Same as {@link RolePrivilege}
@@ -38,16 +39,16 @@ public class UserRole extends BasicDomain implements GrantedAuthority {
    * MappedBy list of user because of the ManyToMany relationship between {@link User} and {@link
    * UserRole}
    */
-  @ManyToMany(mappedBy = "allowedRoleList")
-  private Collection<User> userList;
+  @ManyToMany(mappedBy = "allowedRoleSet")
+  private Set<User> userSet;
 
-  @ManyToMany
+  @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
     name = "role_privilege_mapping",
     joinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"),
     inverseJoinColumns = @JoinColumn(name = "privilege_id", referencedColumnName = "id")
   )
-  private Collection<RolePrivilege> allowedPrivilegeList;
+  private Set<RolePrivilege> allowedPrivilegeSet;
 
   public UserRole() {}
 
@@ -68,19 +69,19 @@ public class UserRole extends BasicDomain implements GrantedAuthority {
     this.name = name;
   }
 
-  public Collection<User> getUserList() {
-    return userList;
+  public Set<User> getUserSet() {
+    return userSet;
   }
 
-  public void setUserList(Collection<User> userList) {
-    this.userList = userList;
+  public void setUserSet(Set<User> userSet) {
+    this.userSet = userSet;
   }
 
-  public Collection<RolePrivilege> getAllowedPrivilegeList() {
-    return allowedPrivilegeList;
+  public Set<RolePrivilege> getAllowedPrivilegeSet() {
+    return allowedPrivilegeSet;
   }
 
-  public void setAllowedPrivilegeList(Collection<RolePrivilege> allowedPrivilegeList) {
-    this.allowedPrivilegeList = allowedPrivilegeList;
+  public void setAllowedPrivilegeSet(Set<RolePrivilege> allowedPrivilegeSet) {
+    this.allowedPrivilegeSet = allowedPrivilegeSet;
   }
 }

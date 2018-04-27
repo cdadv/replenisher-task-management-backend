@@ -1,34 +1,38 @@
 package com.walmart.labs.domain;
 
 import java.util.Collection;
+import java.util.Set;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
-public class User extends BasicDomain {
-  /** List of allowedRoleList the use has */
-  @ManyToMany
+public class User extends BasicDomain implements UserDetails {
+  /** List of allowedRoleSet the use has */
+  @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
     name = "user_role_mapping",
     joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
     inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
   )
-  private Collection<UserRole> allowedRoleList;
+  private Set<UserRole> allowedRoleSet;
 
-  @ManyToMany(mappedBy = "staffList")
-  private Collection<Task> staffTasks;
+  @ManyToMany(mappedBy = "staffSet", fetch = FetchType.EAGER)
+  private Set<Task> staffTaskSet;
 
-  @ManyToMany(mappedBy = "managerList")
-  private Collection<Task> managerTasks;
+  @ManyToMany(mappedBy = "managerSet", fetch = FetchType.EAGER)
+  private Set<Task> managerTaskSet;
 
-  @ManyToMany(mappedBy = "staffList")
-  private Collection<TaskTemplate> staffTaskTemplates;
+  @ManyToMany(mappedBy = "staffSet", fetch = FetchType.EAGER)
+  private Set<TaskTemplate> staffTaskTemplateSet;
 
-  @ManyToMany(mappedBy = "managerList")
-  private Collection<TaskTemplate> managerTaskTemplates;
+  @ManyToMany(mappedBy = "managerSet", fetch = FetchType.EAGER)
+  private Set<TaskTemplate> managerTaskTemplateSet;
 
   @OneToOne private Corporation corporation;
 
@@ -40,12 +44,18 @@ public class User extends BasicDomain {
 
   private boolean deleted;
 
-  public Collection<UserRole> getAllowedRoleList() {
-    return allowedRoleList;
+  private boolean accountNonExpired;
+
+  private boolean accountNonLocked;
+
+  private boolean credentialsNonExpired;
+
+  public Set<UserRole> getAllowedRoleSet() {
+    return allowedRoleSet;
   }
 
-  public void setAllowedRoleList(Collection<UserRole> allowedRoleList) {
-    this.allowedRoleList = allowedRoleList;
+  public void setAllowedRoleSet(Set<UserRole> allowedRoleSet) {
+    this.allowedRoleSet = allowedRoleSet;
   }
 
   public Corporation getCorporation() {
@@ -56,36 +66,36 @@ public class User extends BasicDomain {
     this.corporation = corporation;
   }
 
-  public Collection<Task> getStaffTasks() {
-    return staffTasks;
+  public Set<Task> getStaffTaskSet() {
+    return staffTaskSet;
   }
 
-  public void setStaffTasks(Collection<Task> staffTasks) {
-    this.staffTasks = staffTasks;
+  public void setStaffTaskSet(Set<Task> staffTaskSet) {
+    this.staffTaskSet = staffTaskSet;
   }
 
-  public Collection<Task> getManagerTasks() {
-    return managerTasks;
+  public Set<Task> getManagerTaskSet() {
+    return managerTaskSet;
   }
 
-  public void setManagerTasks(Collection<Task> managerTasks) {
-    this.managerTasks = managerTasks;
+  public void setManagerTaskSet(Set<Task> managerTaskSet) {
+    this.managerTaskSet = managerTaskSet;
   }
 
-  public Collection<TaskTemplate> getStaffTaskTemplates() {
-    return staffTaskTemplates;
+  public Set<TaskTemplate> getStaffTaskTemplateSet() {
+    return staffTaskTemplateSet;
   }
 
-  public void setStaffTaskTemplates(Collection<TaskTemplate> staffTaskTemplates) {
-    this.staffTaskTemplates = staffTaskTemplates;
+  public void setStaffTaskTemplateSet(Set<TaskTemplate> staffTaskTemplateSet) {
+    this.staffTaskTemplateSet = staffTaskTemplateSet;
   }
 
-  public Collection<TaskTemplate> getManagerTaskTemplates() {
-    return managerTaskTemplates;
+  public Set<TaskTemplate> getManagerTaskTemplateSet() {
+    return managerTaskTemplateSet;
   }
 
-  public void setManagerTaskTemplates(Collection<TaskTemplate> managerTaskTemplates) {
-    this.managerTaskTemplates = managerTaskTemplates;
+  public void setManagerTaskTemplateSet(Set<TaskTemplate> managerTaskTemplateSet) {
+    this.managerTaskTemplateSet = managerTaskTemplateSet;
   }
 
   public String getUsername() {
@@ -94,6 +104,11 @@ public class User extends BasicDomain {
 
   public void setUsername(String username) {
     this.username = username;
+  }
+
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return allowedRoleSet;
   }
 
   public String getPassword() {
@@ -118,5 +133,32 @@ public class User extends BasicDomain {
 
   public void setDeleted(boolean deleted) {
     this.deleted = deleted;
+  }
+
+  @Override
+  public boolean isAccountNonExpired() {
+    return accountNonExpired;
+  }
+
+  public void setAccountNonExpired(boolean accountNonExpired) {
+    this.accountNonExpired = accountNonExpired;
+  }
+
+  @Override
+  public boolean isAccountNonLocked() {
+    return accountNonLocked;
+  }
+
+  public void setAccountNonLocked(boolean accountNonLocked) {
+    this.accountNonLocked = accountNonLocked;
+  }
+
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return credentialsNonExpired;
+  }
+
+  public void setCredentialsNonExpired(boolean credentialsNonExpired) {
+    this.credentialsNonExpired = credentialsNonExpired;
   }
 }

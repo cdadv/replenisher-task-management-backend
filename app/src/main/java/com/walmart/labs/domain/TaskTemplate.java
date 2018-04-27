@@ -1,8 +1,10 @@
 package com.walmart.labs.domain;
 
-import java.util.List;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -22,6 +24,9 @@ public class TaskTemplate extends BasicDomain {
   @Type(type = "text")
   private String note;
 
+  @Enumerated(EnumType.STRING)
+  private TaskPriority taskPriority;
+
   /** Frontend can use duration to calculate the estimated finishing date */
   private long estimatedDuration;
 
@@ -34,18 +39,18 @@ public class TaskTemplate extends BasicDomain {
   @ManyToMany
   @JoinTable(
     name = "task_template_staff_user_mapping",
-    joinColumns = @JoinColumn(name = "task_template_id", referencedColumnName = "id"),
-    inverseJoinColumns = @JoinColumn(name = "staff_user_id", referencedColumnName = "id")
+    inverseJoinColumns = @JoinColumn(name = "task_template_id", referencedColumnName = "id"),
+    joinColumns = @JoinColumn(name = "staff_user_id", referencedColumnName = "id")
   )
-  private List<User> staffList;
+  private Set<User> staffSet;
 
   @ManyToMany
   @JoinTable(
     name = "task_template_manager_user_mapping",
-    joinColumns = @JoinColumn(name = "task_template_id", referencedColumnName = "id"),
-    inverseJoinColumns = @JoinColumn(name = "manager_user_id", referencedColumnName = "id")
+    inverseJoinColumns = @JoinColumn(name = "task_template_id", referencedColumnName = "id"),
+    joinColumns = @JoinColumn(name = "manager_user_id", referencedColumnName = "id")
   )
-  private List<User> managerList;
+  private Set<User> managerSet;
 
   public String getName() {
     return name;
@@ -69,6 +74,14 @@ public class TaskTemplate extends BasicDomain {
 
   public void setNote(String note) {
     this.note = note;
+  }
+
+  public TaskPriority getTaskPriority() {
+    return taskPriority;
+  }
+
+  public void setTaskPriority(TaskPriority taskPriority) {
+    this.taskPriority = taskPriority;
   }
 
   public long getEstimatedDuration() {
@@ -103,19 +116,19 @@ public class TaskTemplate extends BasicDomain {
     this.corporation = corporation;
   }
 
-  public List<User> getStaffList() {
-    return staffList;
+  public Set<User> getStaffSet() {
+    return staffSet;
   }
 
-  public void setStaffList(List<User> staffList) {
-    this.staffList = staffList;
+  public void setStaffSet(Set<User> staffSet) {
+    this.staffSet = staffSet;
   }
 
-  public List<User> getManagerList() {
-    return managerList;
+  public Set<User> getManagerSet() {
+    return managerSet;
   }
 
-  public void setManagerList(List<User> managerList) {
-    this.managerList = managerList;
+  public void setManagerSet(Set<User> managerSet) {
+    this.managerSet = managerSet;
   }
 }

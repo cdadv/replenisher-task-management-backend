@@ -1,7 +1,7 @@
 package com.walmart.labs.domain;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -24,6 +24,10 @@ public class Task extends BasicDomain {
    */
   @Enumerated(EnumType.STRING)
   private TaskStatus taskStatus;
+
+  /** {@link TaskPriority} are pre-defined enums for marking task priorities. */
+  @Enumerated(EnumType.STRING)
+  private TaskPriority taskPriority;
   /**
    * Claim that notes field is created as LongText type column in database for storing descriptions,
    * notes and feedback.
@@ -54,7 +58,7 @@ public class Task extends BasicDomain {
    * <p>Date timeEstimatedFinish = DateUtils.addMilliseconds(timeInput.getTime(),
    * estimatedDuration);
    */
-  private long estimatedDuration;
+  private Date timeEstimatedFinish;
 
   /** boolean value to represent if the task is a recurring task */
   private boolean isRecurring;
@@ -72,19 +76,19 @@ public class Task extends BasicDomain {
   @ManyToMany
   @JoinTable(
     name = "task_staff_user_mapping",
-    joinColumns = @JoinColumn(name = "task_id", referencedColumnName = "id"),
-    inverseJoinColumns = @JoinColumn(name = "staff_user_id", referencedColumnName = "id")
+    inverseJoinColumns = @JoinColumn(name = "task_id", referencedColumnName = "id"),
+    joinColumns = @JoinColumn(name = "staff_user_id", referencedColumnName = "id")
   )
-  private List<User> staffList;
+  private Set<User> staffSet;
 
   /** List of manager that manage this task */
   @ManyToMany
   @JoinTable(
     name = "task_manager_user_mapping",
-    joinColumns = @JoinColumn(name = "task_id", referencedColumnName = "id"),
-    inverseJoinColumns = @JoinColumn(name = "manager_user_id", referencedColumnName = "id")
+    inverseJoinColumns = @JoinColumn(name = "task_id", referencedColumnName = "id"),
+    joinColumns = @JoinColumn(name = "manager_user_id", referencedColumnName = "id")
   )
-  private List<User> managerList;
+  private Set<User> managerSet;
 
   // TODO: consider add submitter and editor information either in here or user
 
@@ -102,6 +106,14 @@ public class Task extends BasicDomain {
 
   public void setTaskStatus(TaskStatus taskStatus) {
     this.taskStatus = taskStatus;
+  }
+
+  public TaskPriority getTaskPriority() {
+    return taskPriority;
+  }
+
+  public void setTaskPriority(TaskPriority taskPriority) {
+    this.taskPriority = taskPriority;
   }
 
   public String getDescription() {
@@ -136,12 +148,12 @@ public class Task extends BasicDomain {
     this.timeInput = timeInput;
   }
 
-  public long getEstimatedDuration() {
-    return estimatedDuration;
+  public Date getTimeEstimatedFinish() {
+    return timeEstimatedFinish;
   }
 
-  public void setEstimatedDuration(long estimatedDuration) {
-    this.estimatedDuration = estimatedDuration;
+  public void setTimeEstimatedFinish(Date timeEstimatedFinish) {
+    this.timeEstimatedFinish = timeEstimatedFinish;
   }
 
   public boolean isRecurring() {
@@ -168,19 +180,19 @@ public class Task extends BasicDomain {
     this.corporation = corporation;
   }
 
-  public List<User> getStaffList() {
-    return staffList;
+  public Set<User> getStaffSet() {
+    return staffSet;
   }
 
-  public void setStaffList(List<User> staffList) {
-    this.staffList = staffList;
+  public void setStaffSet(Set<User> staffSet) {
+    this.staffSet = staffSet;
   }
 
-  public List<User> getManagerList() {
-    return managerList;
+  public Set<User> getManagerSet() {
+    return managerSet;
   }
 
-  public void setManagerList(List<User> managerList) {
-    this.managerList = managerList;
+  public void setManagerSet(Set<User> managerSet) {
+    this.managerSet = managerSet;
   }
 }
