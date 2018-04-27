@@ -3,6 +3,8 @@ package com.walmart.labs.domain;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -21,6 +23,9 @@ public class TaskTemplate extends BasicDomain {
   @Column(length = 65535, columnDefinition = "Text")
   @Type(type = "text")
   private String note;
+
+  @Enumerated(EnumType.STRING)
+  private TaskPriority taskPriority;
 
   /** Frontend can use duration to calculate the estimated finishing date */
   private long estimatedDuration;
@@ -69,6 +74,14 @@ public class TaskTemplate extends BasicDomain {
 
   public void setNote(String note) {
     this.note = note;
+  }
+
+  public TaskPriority getTaskPriority() {
+    return taskPriority;
+  }
+
+  public void setTaskPriority(TaskPriority taskPriority) {
+    this.taskPriority = taskPriority;
   }
 
   public long getEstimatedDuration() {

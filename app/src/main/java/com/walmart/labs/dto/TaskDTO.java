@@ -15,6 +15,8 @@ public class TaskDTO {
   // required field
   private String taskStatusString;
   // optional field
+  private String taskPriorityString;
+  // optional field
   private String description;
   // optional field
   private String note;
@@ -50,6 +52,14 @@ public class TaskDTO {
 
   public void setTaskStatusString(String taskStatusString) {
     this.taskStatusString = taskStatusString;
+  }
+
+  public String getTaskPriorityString() {
+    return taskPriorityString;
+  }
+
+  public void setTaskPriorityString(String taskPriorityString) {
+    this.taskPriorityString = taskPriorityString;
   }
 
   public String getDescription() {

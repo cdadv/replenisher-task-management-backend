@@ -24,6 +24,10 @@ public class Task extends BasicDomain {
    */
   @Enumerated(EnumType.STRING)
   private TaskStatus taskStatus;
+
+  /** {@link TaskPriority} are pre-defined enums for marking task priorities. */
+  @Enumerated(EnumType.STRING)
+  private TaskPriority taskPriority;
   /**
    * Claim that notes field is created as LongText type column in database for storing descriptions,
    * notes and feedback.
@@ -102,6 +106,14 @@ public class Task extends BasicDomain {
 
   public void setTaskStatus(TaskStatus taskStatus) {
     this.taskStatus = taskStatus;
+  }
+
+  public TaskPriority getTaskPriority() {
+    return taskPriority;
+  }
+
+  public void setTaskPriority(TaskPriority taskPriority) {
+    this.taskPriority = taskPriority;
   }
 
   public String getDescription() {

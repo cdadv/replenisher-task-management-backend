@@ -2,6 +2,7 @@ package com.walmart.labs.service;
 
 import com.walmart.labs.domain.Corporation;
 import com.walmart.labs.domain.Task;
+import com.walmart.labs.domain.TaskPriority;
 import com.walmart.labs.domain.TaskStatus;
 import com.walmart.labs.domain.User;
 import com.walmart.labs.domain.UserRole;
@@ -149,6 +150,28 @@ public class TaskService {
           String.format(
               "Detected invalid task status within creating task request: task status should be one of the following: %s",
               Arrays.toString(utilService.getEnumNameList(TaskStatus.class))));
+    }
+
+    /*
+    OPTIONAL field for task
+
+    2.5 extract task priority
+     */
+    String taskPriorityString = taskDTO.getTaskPriorityString();
+    TaskPriority taskPriority = TaskPriority.LOW;
+    if (taskPriorityString == null) {
+      task.setTaskPriority(taskPriority);
+    } else {
+      taskPriority = TaskPriority.lookup(taskPriorityString);
+      if (taskPriority != null) {
+        task.setTaskPriority(taskPriority);
+      } else {
+        throw ExceptionFactory.create(
+            ExceptionType.IllegalRequestBodyFieldsException,
+            String.format(
+                "Detected invalid task priority within creating task request: task priority should be one of the following: %s",
+                Arrays.toString(utilService.getEnumNameList(TaskPriority.class))));
+      }
     }
 
     /*
@@ -362,6 +385,7 @@ public class TaskService {
     // Don't need to check task's fields.
     taskDTO.setName(task.getName());
     taskDTO.setTaskStatusString(task.getTaskStatus().name());
+    taskDTO.setTaskPriorityString(task.getTaskPriority().name());
     taskDTO.setDescription(task.getDescription());
     taskDTO.setNote(task.getNote());
     taskDTO.setFeedback(task.getFeedback());
