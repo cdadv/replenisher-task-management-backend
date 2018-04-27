@@ -72,13 +72,15 @@ public class OAuth2ServerConfig {
           .scopes("select")
           .authorities("client")
           .secret("{noop}clientSecret")
-          .accessTokenValiditySeconds(500);
+          .accessTokenValiditySeconds(600)
+          .refreshTokenValiditySeconds(3600);
     }
 
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
       endpoints
           .tokenStore(new RedisTokenStore(redisConnectionFactory))
+          .reuseRefreshTokens(false)
           .authenticationManager(authenticationManager)
           .userDetailsService(applicationUserDetailsService);
     }
