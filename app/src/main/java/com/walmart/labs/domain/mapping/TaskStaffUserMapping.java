@@ -5,12 +5,14 @@ import com.walmart.labs.domain.User;
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "task_staff_user_mapping")
+@IdClass(TaskStaffUserMapping.class)
 public class TaskStaffUserMapping implements Serializable {
   private Task task;
   private User staff;

@@ -9,8 +9,8 @@ import com.walmart.labs.repository.RolePrivilegeRepository;
 import com.walmart.labs.repository.UserRepository;
 import com.walmart.labs.repository.UserRoleRepository;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -85,34 +85,37 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
      * Admin role contains privilegeAdminAllGet, privilegeAdminAllPost, privilegeAdminAllPut,
      * privilegeAdminAllDelete
      */
-    List<RolePrivilege> privilegeAdminList =
-        Arrays.asList(
-            privilegeAdminAllGet,
-            privilegeAdminAllPost,
-            privilegeAdminAllPut,
-            privilegeAdminAllDelete);
-    UserRole roleAdmin = createRoleIfNotFound("ROLE_ADMIN", privilegeAdminList);
+    Set<RolePrivilege> privilegeAdminSet =
+        new HashSet<>(
+            Arrays.asList(
+                privilegeAdminAllGet,
+                privilegeAdminAllPost,
+                privilegeAdminAllPut,
+                privilegeAdminAllDelete));
+    UserRole roleAdmin = createRoleIfNotFound("ROLE_ADMIN", privilegeAdminSet);
 
     /**
      * User staff role contains privilegeUserStaffTaskGet, privilegeUserStaffTaskPost,
      * privilegeUserStaffTaskPut
      */
-    List<RolePrivilege> privilegeUserStaffList =
-        Arrays.asList(
-            privilegeUserStaffTaskGet, privilegeUserStaffTaskPost, privilegeUserStaffTaskPut);
-    UserRole roleUserStaff = createRoleIfNotFound("ROLE_USER_STAFF", privilegeUserStaffList);
+    Set<RolePrivilege> privilegeUserStaffSet =
+        new HashSet<>(
+            Arrays.asList(
+                privilegeUserStaffTaskGet, privilegeUserStaffTaskPost, privilegeUserStaffTaskPut));
+    UserRole roleUserStaff = createRoleIfNotFound("ROLE_USER_STAFF", privilegeUserStaffSet);
 
     /**
      * manager role contains privilegeUserManagerTaskGet, privilegeUserManagerTaskPost,
      * privilegeUserManagerTaskPut, privilegeUserManagerTaskDelete
      */
-    List<RolePrivilege> privilegeUserManagerList =
-        Arrays.asList(
-            privilegeUserManagerTaskGet,
-            privilegeUserManagerTaskPost,
-            privilegeUserManagerTaskPut,
-            privilegeUserManagerTaskDelete);
-    UserRole roleUserManager = createRoleIfNotFound("ROLE_USER_MANAGER", privilegeUserManagerList);
+    Set<RolePrivilege> privilegeUserManagerSet =
+        new HashSet<>(
+            Arrays.asList(
+                privilegeUserManagerTaskGet,
+                privilegeUserManagerTaskPost,
+                privilegeUserManagerTaskPut,
+                privilegeUserManagerTaskDelete));
+    UserRole roleUserManager = createRoleIfNotFound("ROLE_USER_MANAGER", privilegeUserManagerSet);
 
     Corporation corporationDemo = createCorporationIfNotFound("CORPORATION_DEMO");
 
@@ -122,7 +125,7 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
     // TODO: encrypt the password
     userAdmin.setPassword(new BCryptPasswordEncoder().encode("admin_password"));
     userAdmin.setCorporation(corporationDemo);
-    userAdmin.setAllowedRoleList(Arrays.asList(roleAdmin));
+    userAdmin.setAllowedRoleSet(new HashSet<>(Arrays.asList(roleAdmin)));
     userAdmin.setEnabled(true);
     userAdmin.setAccountNonExpired(true);
     userAdmin.setAccountNonLocked(true);
@@ -134,7 +137,7 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
     // TODO: encrypt the password
     userStaff.setPassword(new BCryptPasswordEncoder().encode("staff_password"));
     userStaff.setCorporation(corporationDemo);
-    userStaff.setAllowedRoleList(Arrays.asList(roleUserStaff));
+    userStaff.setAllowedRoleSet(new HashSet<>(Arrays.asList(roleUserStaff)));
     userStaff.setEnabled(true);
     userAdmin.setAccountNonExpired(true);
     userAdmin.setAccountNonLocked(true);
@@ -146,7 +149,7 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
     // TODO: encrypt the password
     userManager.setPassword(new BCryptPasswordEncoder().encode("manager_password"));
     userManager.setCorporation(corporationDemo);
-    userManager.setAllowedRoleList(Arrays.asList(roleUserManager));
+    userManager.setAllowedRoleSet(new HashSet<>(Arrays.asList(roleUserManager)));
     userManager.setEnabled(true);
     userAdmin.setAccountNonExpired(true);
     userAdmin.setAccountNonLocked(true);
@@ -169,12 +172,12 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
   }
 
   @Transactional
-  UserRole createRoleIfNotFound(String name, Collection<RolePrivilege> privilegeList) {
+  UserRole createRoleIfNotFound(String name, Set<RolePrivilege> privilegeSet) {
 
     UserRole role = userRoleRepository.findByName(name);
     if (role == null) {
       role = new UserRole(name);
-      role.setAllowedPrivilegeList(privilegeList);
+      role.setAllowedPrivilegeSet(privilegeSet);
       userRoleRepository.save(role);
     }
     return role;

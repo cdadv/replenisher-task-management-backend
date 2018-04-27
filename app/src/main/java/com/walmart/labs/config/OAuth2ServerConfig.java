@@ -66,11 +66,13 @@ public class OAuth2ServerConfig {
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
       clients
           .inMemory()
+          // TODO: encrypt clientId
           .withClient("clientId")
           .resourceIds(RESOURCE_ID)
           .authorizedGrantTypes("password", "refresh_token")
           .scopes("select")
           .authorities("client")
+          // TODO: encrypt clientSecret
           .secret("{noop}clientSecret")
           .accessTokenValiditySeconds(600)
           .refreshTokenValiditySeconds(3600);
@@ -80,7 +82,6 @@ public class OAuth2ServerConfig {
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
       endpoints
           .tokenStore(new RedisTokenStore(redisConnectionFactory))
-          .reuseRefreshTokens(false)
           .authenticationManager(authenticationManager)
           .userDetailsService(applicationUserDetailsService);
     }

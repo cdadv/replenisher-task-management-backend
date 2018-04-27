@@ -2,7 +2,7 @@ package com.walmart.labs.dto;
 
 import com.walmart.labs.domain.Task;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 /**
  * TaskDTO used for creating and editing task object
@@ -32,9 +32,9 @@ public class TaskDTO {
   // required field
   private Long corporationId;
   // required field
-  private List<Long> assignedStaffIdList;
+  private Set<Long> assignedStaffIdSet;
   // required field
-  private List<Long> managerIdList;
+  private Set<Long> managerIdSet;
 
   public String getName() {
     return name;
@@ -116,19 +116,19 @@ public class TaskDTO {
     this.corporationId = corporationId;
   }
 
-  public List<Long> getAssignedStaffIdList() {
-    return assignedStaffIdList;
+  public Set<Long> getAssignedStaffIdSet() {
+    return assignedStaffIdSet;
   }
 
-  public void setAssignedStaffIdList(List<Long> assignedStaffIdList) {
-    this.assignedStaffIdList = assignedStaffIdList;
+  public void setAssignedStaffIdSet(Set<Long> assignedStaffIdSet) {
+    this.assignedStaffIdSet = assignedStaffIdSet;
   }
 
-  public List<Long> getManagerIdList() {
-    return managerIdList;
+  public Set<Long> getManagerIdSet() {
+    return managerIdSet;
   }
 
-  public void setManagerIdList(List<Long> managerIdList) {
-    this.managerIdList = managerIdList;
+  public void setManagerIdSet(Set<Long> managerIdSet) {
+    this.managerIdSet = managerIdSet;
   }
 }

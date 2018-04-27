@@ -2,6 +2,7 @@ package com.walmart.labs.util;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
@@ -21,12 +22,12 @@ public class UtilService {
    * This util method is used for converting a list of Long type to a comma separated String with
    * all the elements
    *
-   * @param listOfLongType a list of Long type
+   * @param setOfLongType a list of Long type
    * @return a comma separated String with all the elements in the original Long list.
    */
-  public String listOfLongTypeToCommaSeparatedString(List<Long> listOfLongType) {
+  public String setOfLongTypeToCommaSeparatedString(Set<Long> setOfLongType) {
     List<String> listOfStringType =
-        listOfLongType.stream().map(Object::toString).collect(Collectors.toList());
+        setOfLongType.stream().map(Object::toString).collect(Collectors.toList());
     return String.join(",", listOfStringType);
   }
 }
