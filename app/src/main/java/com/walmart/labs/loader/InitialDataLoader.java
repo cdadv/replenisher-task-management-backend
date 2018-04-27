@@ -131,31 +131,68 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
     userAdmin.setAccountNonLocked(true);
     userAdmin.setCredentialsNonExpired(true);
 
-    /** User staff user initialization. */
-    User userStaff = new User();
-    userStaff.setUsername("staff_user");
+    /** User staff user 1 initialization. */
+    User userStaff1 = new User();
+    userStaff1.setUsername("staff_user_1");
     // TODO: encrypt the password
-    userStaff.setPassword(new BCryptPasswordEncoder().encode("staff_password"));
-    userStaff.setCorporation(corporationDemo);
-    userStaff.setAllowedRoleSet(new HashSet<>(Arrays.asList(roleUserStaff)));
-    userStaff.setEnabled(true);
-    userAdmin.setAccountNonExpired(true);
-    userAdmin.setAccountNonLocked(true);
-    userAdmin.setCredentialsNonExpired(true);
+    userStaff1.setPassword(new BCryptPasswordEncoder().encode("staff_password_1"));
+    userStaff1.setCorporation(corporationDemo);
+    userStaff1.setAllowedRoleSet(new HashSet<>(Arrays.asList(roleUserStaff)));
+    userStaff1.setEnabled(true);
+    userStaff1.setAccountNonExpired(true);
+    userStaff1.setAccountNonLocked(true);
+    userStaff1.setCredentialsNonExpired(true);
 
-    /** User manager user initialization. */
-    User userManager = new User();
-    userManager.setUsername("manager_user");
+    /** User staff user 2 initialization. */
+    User userStaff2 = new User();
+    userStaff2.setUsername("staff_user_2");
     // TODO: encrypt the password
-    userManager.setPassword(new BCryptPasswordEncoder().encode("manager_password"));
-    userManager.setCorporation(corporationDemo);
-    userManager.setAllowedRoleSet(new HashSet<>(Arrays.asList(roleUserManager)));
-    userManager.setEnabled(true);
-    userAdmin.setAccountNonExpired(true);
-    userAdmin.setAccountNonLocked(true);
-    userAdmin.setCredentialsNonExpired(true);
+    userStaff2.setPassword(new BCryptPasswordEncoder().encode("staff_password_2"));
+    userStaff2.setCorporation(corporationDemo);
+    userStaff2.setAllowedRoleSet(new HashSet<>(Arrays.asList(roleUserStaff)));
+    userStaff2.setEnabled(true);
+    userStaff2.setAccountNonExpired(true);
+    userStaff2.setAccountNonLocked(true);
+    userStaff2.setCredentialsNonExpired(true);
 
-    userRepository.saveAll(Arrays.asList(userAdmin, userStaff, userManager));
+    /** User staff user 3 initialization. */
+    User userStaff3 = new User();
+    userStaff3.setUsername("staff_user_3");
+    // TODO: encrypt the password
+    userStaff3.setPassword(new BCryptPasswordEncoder().encode("staff_password_3"));
+    userStaff3.setCorporation(corporationDemo);
+    userStaff3.setAllowedRoleSet(new HashSet<>(Arrays.asList(roleUserStaff)));
+    userStaff3.setEnabled(true);
+    userStaff3.setAccountNonExpired(true);
+    userStaff3.setAccountNonLocked(true);
+    userStaff3.setCredentialsNonExpired(true);
+
+    /** User manager user 1 initialization. */
+    User userManager1 = new User();
+    userManager1.setUsername("manager_user_1");
+    // TODO: encrypt the password
+    userManager1.setPassword(new BCryptPasswordEncoder().encode("manager_password_1"));
+    userManager1.setCorporation(corporationDemo);
+    userManager1.setAllowedRoleSet(new HashSet<>(Arrays.asList(roleUserManager)));
+    userManager1.setEnabled(true);
+    userManager1.setAccountNonExpired(true);
+    userManager1.setAccountNonLocked(true);
+    userManager1.setCredentialsNonExpired(true);
+
+    /** User manager user 2 initialization. */
+    User userManager2 = new User();
+    userManager2.setUsername("manager_user_2");
+    // TODO: encrypt the password
+    userManager2.setPassword(new BCryptPasswordEncoder().encode("manager_password_2"));
+    userManager2.setCorporation(corporationDemo);
+    userManager2.setAllowedRoleSet(new HashSet<>(Arrays.asList(roleUserManager)));
+    userManager2.setEnabled(true);
+    userManager2.setAccountNonExpired(true);
+    userManager2.setAccountNonLocked(true);
+    userManager2.setCredentialsNonExpired(true);
+
+    userRepository.saveAll(
+        Arrays.asList(userAdmin, userStaff1, userStaff2, userStaff3, userManager1, userManager2));
 
     alreadySetup = true;
   }

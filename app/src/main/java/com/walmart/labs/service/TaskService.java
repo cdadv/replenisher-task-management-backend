@@ -308,6 +308,21 @@ public class TaskService {
       assignedStaffSet =
           userRepository.findAllByIdInAndCorporation(assignedStaffIdSet, corporation);
       if (assignedStaffSet != null && !assignedStaffSet.isEmpty()) {
+        // verify if provided user id is a staff
+        // among all the provided staff id in the set, an error will be thrown if there the id does
+        // not have a staff role.
+        for (User user : assignedStaffSet) {
+          Set<UserRole> userRoleSet = user.getAllowedRoleSet();
+          for (UserRole role : userRoleSet) {
+            if (!role.getName().equals("ROLE_USER_STAFF")) {
+              throw ExceptionFactory.create(
+                  ExceptionType.IllegalRequestBodyFieldsException,
+                  String.format(
+                      "Detected invalid staff id of staff id list within creating task request: user id %s is not mapped to a staff role",
+                      user.getId()));
+            }
+          }
+        }
         task.setStaffSet(assignedStaffSet);
       } else {
         throw ExceptionFactory.create(
@@ -333,6 +348,21 @@ public class TaskService {
       // TODO: check if provided manager id refer to a manager
       managerSet = userRepository.findAllByIdInAndCorporation(managerIdSet, corporation);
       if (managerSet != null && !managerSet.isEmpty()) {
+        // verify if provided user id is a staff
+        // among all the provided staff id in the set, an error will be thrown if there the id does
+        // not have a staff role.
+        for (User user : managerSet) {
+          Set<UserRole> userRoleSet = user.getAllowedRoleSet();
+          for (UserRole role : userRoleSet) {
+            if (!role.getName().equals("ROLE_USER_MANAGER")) {
+              throw ExceptionFactory.create(
+                  ExceptionType.IllegalRequestBodyFieldsException,
+                  String.format(
+                      "Detected invalid manager id of manager id list within creating task request: user id %s is not mapped to a manager role",
+                      user.getId()));
+            }
+          }
+        }
         task.setManagerSet(managerSet);
       } else {
         throw ExceptionFactory.create(
@@ -354,16 +384,7 @@ public class TaskService {
     */
     String name = taskDTO.getName();
     if (name != null) {
-      Task existingTaskWithSameName =
-          taskRepository.findByNameAndCorporationAndStaffSet(name, corporation, assignedStaffSet);
-      if (existingTaskWithSameName == null) {
-        task.setName(name);
-      } else {
-        throw ExceptionFactory.create(
-            ExceptionType.IllegalRequestBodyFieldsException,
-            "Detected invalid task name within creating task request: duplicated task name for same corporation and same staffs.");
-      }
-
+      task.setName(name);
     } else {
       throw ExceptionFactory.create(
           ExceptionType.IllegalRequestBodyFieldsException,

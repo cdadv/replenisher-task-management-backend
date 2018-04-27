@@ -39,16 +39,16 @@ public class TaskTemplate extends BasicDomain {
   @ManyToMany
   @JoinTable(
     name = "task_template_staff_user_mapping",
-    inverseJoinColumns = @JoinColumn(name = "task_template_id", referencedColumnName = "id"),
-    joinColumns = @JoinColumn(name = "staff_user_id", referencedColumnName = "id")
+    joinColumns = @JoinColumn(name = "task_template_id", referencedColumnName = "id"),
+    inverseJoinColumns = @JoinColumn(name = "staff_user_id", referencedColumnName = "id")
   )
   private Set<User> staffSet;
 
   @ManyToMany
   @JoinTable(
     name = "task_template_manager_user_mapping",
-    inverseJoinColumns = @JoinColumn(name = "task_template_id", referencedColumnName = "id"),
-    joinColumns = @JoinColumn(name = "manager_user_id", referencedColumnName = "id")
+    joinColumns = @JoinColumn(name = "task_template_id", referencedColumnName = "id"),
+    inverseJoinColumns = @JoinColumn(name = "manager_user_id", referencedColumnName = "id")
   )
   private Set<User> managerSet;
 
