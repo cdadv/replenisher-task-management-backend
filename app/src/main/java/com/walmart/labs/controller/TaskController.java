@@ -10,7 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class TaskController {
@@ -91,7 +95,7 @@ public class TaskController {
     ResponseDTO<Void> responseDTO = new ResponseDTO<>();
 
     OAuth2Authentication authentication =
-            (OAuth2Authentication) SecurityContextHolder.getContext().getAuthentication();
+        (OAuth2Authentication) SecurityContextHolder.getContext().getAuthentication();
     User user = (User) authentication.getPrincipal();
 
     taskService.updateTask(user, taskDTO);
@@ -102,6 +106,7 @@ public class TaskController {
 
   /**
    * Delete a existing task by provided task id.
+   *
    * @param taskId taskId should be an id for an existing task record in database.
    * @return Empty result with success/fail messages.
    */
@@ -110,7 +115,7 @@ public class TaskController {
     ResponseDTO<Void> responseDTO = new ResponseDTO<>();
 
     OAuth2Authentication authentication =
-            (OAuth2Authentication) SecurityContextHolder.getContext().getAuthentication();
+        (OAuth2Authentication) SecurityContextHolder.getContext().getAuthentication();
     User user = (User) authentication.getPrincipal();
 
     taskService.deleteTask(user, taskId);
