@@ -64,6 +64,9 @@ public class TaskService {
               String.format("Detected invalid role for user: %s", role.getName()));
       }
     }
+    if (taskList == null || taskList.isEmpty()) {
+      return new ArrayList<>();
+    }
     taskDTOList = mapTaskListToTaskDTOList(taskList, taskDTOList);
     logger.info("Queried a task successfully!");
     return taskDTOList;
