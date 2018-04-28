@@ -2,7 +2,7 @@ package com.walmart.labs.domain;
 
 public enum TaskStatus {
   /**
-   * PENDING means the task was just created. It is waiting to be assigned by manager or waiting to
+   * CREATED means the task was just created. It is waiting to be assigned by manager or waiting to
    * set a manager as reporter.
    */
   CREATED,
