@@ -1,5 +1,6 @@
 package com.walmart.labs.service;
 
+import com.walmart.labs.comparator.SortByRankComparator;
 import com.walmart.labs.domain.Corporation;
 import com.walmart.labs.domain.Task;
 import com.walmart.labs.domain.TaskTemplate;
@@ -18,6 +19,7 @@ import com.walmart.labs.repository.mapping.TaskManagerUserMappingRepository;
 import com.walmart.labs.repository.mapping.TaskStaffUserMappingRepository;
 import com.walmart.labs.util.ValidationService;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -242,6 +244,11 @@ public class TaskService {
 
   public void deleteTaskTemplate(TaskTemplate taskTemplate) {
     taskTemplateRepository.delete(taskTemplate);
+  }
+
+  public List<TaskDTO> sortTaskDTOListByRank(List<TaskDTO> taskDTOListSortedById) {
+    taskDTOListSortedById.sort(new SortByRankComparator());
+    return taskDTOListSortedById;
   }
 
   private TaskTemplate mapTaskTemplateDTOToTaskTemplate(
