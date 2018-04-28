@@ -2,15 +2,18 @@ package com.walmart.labs.service;
 
 import com.walmart.labs.domain.Corporation;
 import com.walmart.labs.domain.Task;
+import com.walmart.labs.domain.TaskTemplate;
 import com.walmart.labs.domain.User;
 import com.walmart.labs.domain.UserRole;
 import com.walmart.labs.domain.mapping.TaskManagerUserMapping;
 import com.walmart.labs.domain.mapping.TaskStaffUserMapping;
 import com.walmart.labs.dto.TaskDTO;
+import com.walmart.labs.dto.TaskTemplateDTO;
 import com.walmart.labs.dto.UserDTO;
 import com.walmart.labs.exception.ExceptionFactory;
 import com.walmart.labs.exception.ExceptionType;
 import com.walmart.labs.repository.TaskRepository;
+import com.walmart.labs.repository.TaskTemplateRepository;
 import com.walmart.labs.repository.mapping.TaskManagerUserMappingRepository;
 import com.walmart.labs.repository.mapping.TaskStaffUserMappingRepository;
 import com.walmart.labs.util.ValidationService;
@@ -32,6 +35,7 @@ public class TaskService {
   private static final Logger logger = LoggerFactory.getLogger(TaskService.class);
 
   @Autowired private TaskRepository taskRepository;
+  @Autowired private TaskTemplateRepository taskTemplateRepository;
   @Autowired private ValidationService validationService;
   @Autowired private TaskStaffUserMappingRepository taskStaffUserMappingRepository;
   @Autowired private TaskManagerUserMappingRepository taskManagerUserMappingRepository;
@@ -43,7 +47,7 @@ public class TaskService {
    * @param user user is used for determining which tasks to return.
    * @return list of TaskDTO
    */
-  public List<TaskDTO> getTaskList(User user) {
+  public List<TaskDTO> getTaskDTOList(User user) {
     List<TaskDTO> taskDTOList = new ArrayList<>();
     List<Task> taskList = null;
     Set<UserRole> allowedRoleSet = user.getAllowedRoleSet();
@@ -78,6 +82,42 @@ public class TaskService {
   }
 
   /**
+   * Query task template list based on user's role. And then map list of task template to list of task template dto.
+   * @param user
+   * @return list of TaskTemplateDTO
+   */
+  public List<TaskTemplateDTO> getTaskTemplateDTOList(User user) {
+    List<TaskTemplateDTO> taskTemplateDTOList = new ArrayList<>();
+    List<TaskTemplate> taskTemplateList = null;
+    Set<UserRole> allowedRoleSet = user.getAllowedRoleSet();
+    for (UserRole role : allowedRoleSet) {
+      switch (role.getName()) {
+        // Assuming there are only three roles supported in backend.
+        case "ROLE_ADMIN":
+          taskTemplateList = taskTemplateRepository.findAll();
+          break;
+        case "ROLE_USER_MANAGER":
+          // TODO: simplified querying process for task template. query all by corporation for now. (query by creator of task templates)
+          taskTemplateList = taskTemplateRepository.findAllByCorporation(user.getCorporation());
+          break;
+        case "ROLE_USER_STAFF":
+          throw ExceptionFactory.create(
+              ExceptionType.IllegalRequestBodyFieldsException, "Detected invalid role for user: staff user is not authorized to query task template list");
+        default:
+          throw ExceptionFactory.create(
+              ExceptionType.IllegalRequestBodyFieldsException,
+              String.format("Detected invalid role for user: %s", role.getName()));
+      }
+    }
+    if (taskTemplateList == null || taskTemplateList.isEmpty()) {
+      return new ArrayList<>();
+    }
+    taskTemplateDTOList = mapTaskTemplateListToTaskTemplateDTOList(taskTemplateList, taskTemplateDTOList);
+    logger.info("Queried a task template successfully!");
+    return taskTemplateDTOList;
+  }
+
+  /**
    * Extract all the information from TaskDTO to Task and then save.
    *
    * @param taskDTO TaskDTO passed from frontend or client.
@@ -93,6 +133,24 @@ public class TaskService {
     taskRepository.save(task);
   }
 
+  /**
+   * Extract all the information from TaskDTO to Task first and map Task to TaskTemplate, then save.
+   * @param user
+   * @param taskDTO
+   */
+  public void createTaskTemplate(User user, TaskDTO taskDTO) {
+    Task task = new Task();
+    task = mapTaskDTOToTask(user, taskDTO, task);
+    TaskTemplate taskTemplate = new TaskTemplate();
+    taskTemplate = mapTaskToTaskTemplate(task, taskTemplate);
+    createTaskTemplate(taskTemplate);
+    logger.info("Created a task template successfully!");
+  }
+
+  public void createTaskTemplate(TaskTemplate taskTemplate) {
+    taskTemplateRepository.save(taskTemplate);
+  }
+
   public void updateTask(User user, TaskDTO taskDTO) {
     Long taskId = taskDTO.getTaskId();
     Task task = validationService.validateTaskIdForUpdatingOrDeletingForAdmin(taskId, user);
@@ -103,6 +161,18 @@ public class TaskService {
 
   public void updateTask(Task task) {
     taskRepository.save(task);
+  }
+
+  public void updateTaskTemplate(User user, TaskTemplateDTO taskTemplateDTO) {
+    Long taskTemplateId = taskTemplateDTO.getTaskTemplateId();
+    TaskTemplate taskTemplate = validationService.validateTaskTemplateIdForUpdatingOrDeletingForAdmin(taskTemplateId, user);
+    taskTemplate = mapTaskTemplateDTOToTaskTemplate(user, taskTemplateDTO, taskTemplate);
+    updateTaskTemplate(taskTemplate);
+    logger.info("Updated a task template successfully!");
+  }
+
+  public void updateTaskTemplate(TaskTemplate taskTemplate) {
+    taskTemplateRepository.save(taskTemplate);
   }
 
   public void deleteTask(User user, Long taskId) {
@@ -132,6 +202,149 @@ public class TaskService {
 
   public void deleteTask(Task task) {
     taskRepository.delete(task);
+  }
+
+  public void deleteTaskTemplate(User user, Long taskTemplateId) {
+    TaskTemplate taskTemplate = null;
+    Set<UserRole> allowedRoleSet = user.getAllowedRoleSet();
+    for (UserRole role : allowedRoleSet) {
+      switch (role.getName()) {
+        // Assuming there are only three roles supported in backend.
+        case "ROLE_ADMIN":
+          taskTemplate = validationService.validateTaskTemplateIdForUpdatingOrDeletingForAdmin(taskTemplateId, user);
+          break;
+        case "ROLE_USER_MANAGER":
+          taskTemplate = validationService.validateTaskTemplateIdForUpdatingOrDeletingForManager(taskTemplateId, user);
+          break;
+        case "ROLE_USER_STAFF":
+          throw ExceptionFactory.create(
+              ExceptionType.IllegalRequestBodyFieldsException, "Detected invalid role for user: staff user is not authorized to delete task template.");
+        default:
+          throw ExceptionFactory.create(
+              ExceptionType.IllegalRequestBodyFieldsException,
+              String.format("Detected invalid role for user: %s", role.getName()));
+      }
+    }
+    deleteTaskTemplate(taskTemplate);
+    logger.info("Deleted a task template successfully!");
+  }
+
+  public void deleteTaskTemplate(TaskTemplate taskTemplate) {
+    taskTemplateRepository.delete(taskTemplate);
+  }
+
+  private TaskTemplate mapTaskTemplateDTOToTaskTemplate(
+      User currentUser, TaskTemplateDTO taskTemplateDTO, TaskTemplate taskTemplate) {
+    if (taskTemplate == null) {
+      taskTemplate = new TaskTemplate();
+    }
+    Set<UserRole> allowedRoleSet = currentUser.getAllowedRoleSet();
+
+    String name = null;
+    String taskPriorityString = null;
+    String description = null;
+    String note = null;
+    long estimatedDuration = 0;
+    boolean isRecurring = false;
+    String recurringPeriodCronExpression = null;
+    Long corporationId = null;
+    Corporation corporation = null;
+    Set<Long> assignedStaffIdSet = null;
+    Set<Long> managerIdSet = null;
+
+    for (UserRole role : allowedRoleSet) {
+      switch (role.getName()) {
+          // Assuming there are only three roles supported in backend.
+        case "ROLE_ADMIN":
+          validationService.validateTaskTemplateDTOAndSetForAdmin(taskTemplateDTO, taskTemplate);
+          // REQUIRED field for task: 1. extract task name
+          name = taskTemplateDTO.getName();
+          validationService.validateTaskNameForAdmin(name, taskTemplate);
+          // OPTIONAL field for task: 3 extract task priority
+          taskPriorityString = taskTemplateDTO.getTaskPriorityString();
+          validationService.validateTaskPriorityStringAndSetForAdmin(taskPriorityString, taskTemplate);
+          // OPTIONAL field for task: 4. extract task descriptions
+          description = taskTemplateDTO.getDescription();
+          validationService.validateTaskDescriptionAndSetForAdmin(description, taskTemplate);
+          // OPTIONAL field for task: 5. extract task note
+          note = taskTemplateDTO.getNote();
+          validationService.validateTaskNoteAndSetForAdmin(note, taskTemplate);
+          // REQUIRED field for task: 7. extract task input time (when the task is created by the
+          // user.)
+          estimatedDuration = taskTemplateDTO.getEstimatedDuration();
+          validationService.validateTaskEstimatedDurationAndSetForAdmin(estimatedDuration, taskTemplate);
+          // OPTIONAL field for task: 9. extract if the task is recurring task or not.
+          isRecurring = taskTemplateDTO.isRecurring();
+          recurringPeriodCronExpression = taskTemplateDTO.getRecurringPeriodCronExpression();
+          validationService
+              .validateTaskIsrecurringAndTaskRecurringPeriodCronExpressionAndSetForAdmin(
+                  isRecurring, recurringPeriodCronExpression, taskTemplate);
+          // REQUIRED field for task: 10. extract corporation from provided corporationId.
+          corporationId = taskTemplateDTO.getCorporationId();
+          corporation =
+              validationService.validateTaskCorporationIdAndSetForAdmin(
+                  corporationId, currentUser, taskTemplate);
+          // REQUIRED field for task: 11. extract assigned staff list for this task from provided
+          // assigned staff id list.
+          assignedStaffIdSet = taskTemplateDTO.getAssignedStaffIdSet();
+          validationService.validateTaskAssignedStaffIdSetAndSetForAdmin(
+              assignedStaffIdSet, corporation, currentUser, taskTemplate);
+          // REQUIRED field for task: 12. extract assigned manager list for this task from provided
+          // manager id list.
+          managerIdSet = taskTemplateDTO.getManagerIdSet();
+          validationService.validateTaskManagerIdSetAndSetForAdmin(
+              managerIdSet, corporation, currentUser, taskTemplate);
+          break;
+        case "ROLE_USER_MANAGER":
+          validationService.validateTaskTemplateDTOAndSetForAdmin(taskTemplateDTO, taskTemplate);
+          // REQUIRED field for task: 1. extract task name
+          name = taskTemplateDTO.getName();
+          validationService.validateTaskNameForAdmin(name, taskTemplate);
+          // OPTIONAL field for task: 3 extract task priority
+          taskPriorityString = taskTemplateDTO.getTaskPriorityString();
+          validationService.validateTaskPriorityStringAndSetForAdmin(taskPriorityString, taskTemplate);
+          // OPTIONAL field for task: 4. extract task descriptions
+          description = taskTemplateDTO.getDescription();
+          validationService.validateTaskDescriptionAndSetForAdmin(description, taskTemplate);
+          // OPTIONAL field for task: 5. extract task note
+          note = taskTemplateDTO.getNote();
+          validationService.validateTaskNoteAndSetForAdmin(note, taskTemplate);
+          // REQUIRED field for task: 7. extract task input time (when the task is created by the
+          // user.)
+          estimatedDuration = taskTemplateDTO.getEstimatedDuration();
+          validationService.validateTaskEstimatedDurationAndSetForAdmin(estimatedDuration, taskTemplate);
+          // OPTIONAL field for task: 9. extract if the task is recurring task or not.
+          isRecurring = taskTemplateDTO.isRecurring();
+          recurringPeriodCronExpression = taskTemplateDTO.getRecurringPeriodCronExpression();
+          validationService
+              .validateTaskIsrecurringAndTaskRecurringPeriodCronExpressionAndSetForAdmin(
+                  isRecurring, recurringPeriodCronExpression, taskTemplate);
+          // REQUIRED field for task: 10. extract corporation from provided corporationId.
+          corporationId = taskTemplateDTO.getCorporationId();
+          corporation =
+              validationService.validateTaskCorporationIdAndSetForAdmin(
+                  corporationId, currentUser, taskTemplate);
+          // REQUIRED field for task: 11. extract assigned staff list for this task from provided
+          // assigned staff id list.
+          assignedStaffIdSet = taskTemplateDTO.getAssignedStaffIdSet();
+          validationService.validateTaskAssignedStaffIdSetAndSetForAdmin(
+              assignedStaffIdSet, corporation, currentUser, taskTemplate);
+          // REQUIRED field for task: 12. extract assigned manager list for this task from provided
+          // manager id list.
+          managerIdSet = taskTemplateDTO.getManagerIdSet();
+          validationService.validateTaskManagerIdSetAndSetForAdmin(
+              managerIdSet, corporation, currentUser, taskTemplate);
+          break;
+        case "ROLE_USER_STAFF":
+          throw ExceptionFactory.create(
+              ExceptionType.IllegalRequestBodyFieldsException, "Detected invalid role for user: staff user is not authorized to update task template");
+        default:
+          throw ExceptionFactory.create(
+              ExceptionType.IllegalRequestBodyFieldsException,
+              String.format("Detected invalid role for user: %s", role.getName()));
+      }
+    }
+    return taskTemplate;
   }
 
   private Task mapTaskDTOToTask(User currentUser, TaskDTO taskDTO, Task task) {
@@ -395,6 +608,99 @@ public class TaskService {
       taskDTOList.add(taskDTO);
     }
     return taskDTOList;
+  }
+
+  private TaskTemplate mapTaskToTaskTemplate(Task task, TaskTemplate taskTemplate) {
+    if (task == null) {
+      throw ExceptionFactory.create(
+          ExceptionType.IllegalArgumentException,
+          "Mapping Task to TaskTemplate failed: task cannot be null.");
+    }
+    if (taskTemplate == null) {
+      taskTemplate = new TaskTemplate();
+    }
+    taskTemplate.setName(task.getName());
+    taskTemplate.setDescription(task.getDescription());
+    taskTemplate.setNote(task.getNote());
+    taskTemplate.setTaskPriority(task.getTaskPriority());
+    taskTemplate.setEstimatedDuration(task.getTimeEstimatedFinish().getTime() - task.getTimeInput().getTime());
+    taskTemplate.setRecurring(task.isRecurring());
+    taskTemplate.setRecurringPeriodCronExpression(task.getRecurringPeriodCronExpression());
+    taskTemplate.setCorporation(task.getCorporation());
+    taskTemplate.setStaffSet(task.getStaffSet());
+    taskTemplate.setManagerSet(task.getManagerSet());
+    return taskTemplate;
+  }
+
+  private TaskTemplateDTO mapTaskTemplateToTaskTemplateDTO(TaskTemplate taskTemplate, TaskTemplateDTO taskTemplateDTO) {
+    if (taskTemplate == null) {
+      throw ExceptionFactory.create(
+          ExceptionType.IllegalArgumentException,
+          "Mapping TaskTemplate to TaskTemplateDTO failed: taskTemplate cannot be null.");
+    }
+    if (taskTemplateDTO == null) {
+      taskTemplateDTO = new TaskTemplateDTO();
+    }
+    taskTemplateDTO.setName(taskTemplate.getName());
+    taskTemplateDTO.setDescription(taskTemplate.getDescription());
+    taskTemplateDTO.setNote(taskTemplate.getNote());
+    taskTemplateDTO.setTaskPriorityString(taskTemplate.getTaskPriority().name());
+    taskTemplateDTO.setEstimatedDuration(taskTemplate.getEstimatedDuration());
+    taskTemplateDTO.setRecurring(taskTemplate.isRecurring());
+    taskTemplateDTO.setRecurringPeriodCronExpression(taskTemplate.getRecurringPeriodCronExpression());
+    taskTemplateDTO.setCorporationId(taskTemplate.getCorporation().getId());
+
+    Set<Long> assignedStaffIdSet = new HashSet<>();
+    Set<UserDTO> assignedStaffUserDTOSet = new HashSet<>();
+    for (User staff: taskTemplate.getStaffSet()) {
+      assignedStaffIdSet.add(staff.getId());
+      UserDTO assignedStaffUserDTO = new UserDTO();
+      assignedStaffUserDTOSet.add(assignedStaffUserDTO);
+      assignedStaffUserDTO.setUserId(staff.getId());
+      assignedStaffUserDTO.setCorporationId(staff.getCorporation().getId());
+      assignedStaffUserDTO.setFullName(staff.getFullName());
+      assignedStaffUserDTO.setUsername(staff.getUsername());
+      assignedStaffUserDTO.setEmailAddress(staff.getEmailAddress());
+      assignedStaffUserDTO.setEnabled(staff.isEnabled());
+      assignedStaffUserDTO.setDeleted(staff.isDeleted());
+    }
+    taskTemplateDTO.setAssignedStaffIdSet(assignedStaffIdSet);
+    taskTemplateDTO.setAssignedStaffUserDTOSet(assignedStaffUserDTOSet);
+
+    Set<Long> managerIdSet = new HashSet<>();
+    Set<UserDTO> managerUserDTOSet = new HashSet<>();
+    for (User manager: taskTemplate.getManagerSet()) {
+      managerIdSet.add(manager.getId());
+      UserDTO managerUserDTO = new UserDTO();
+      managerUserDTOSet.add(managerUserDTO);
+      managerUserDTO.setUserId(manager.getId());
+      managerUserDTO.setCorporationId(manager.getCorporation().getId());
+      managerUserDTO.setFullName(manager.getFullName());
+      managerUserDTO.setUsername(manager.getUsername());
+      managerUserDTO.setEmailAddress(manager.getEmailAddress());
+      managerUserDTO.setEnabled(manager.isEnabled());
+      managerUserDTO.setDeleted(manager.isDeleted());
+    }
+    taskTemplateDTO.setManagerIdSet(managerIdSet);
+    taskTemplateDTO.setManagerUserDTOSet(managerUserDTOSet);
+    return taskTemplateDTO;
+  }
+
+  private List<TaskTemplateDTO> mapTaskTemplateListToTaskTemplateDTOList(List<TaskTemplate> taskTemplateList, List<TaskTemplateDTO> taskTemplateDTOList) {
+    if (taskTemplateList == null || taskTemplateList.isEmpty()) {
+      throw ExceptionFactory.create(
+          ExceptionType.IllegalArgumentException,
+          "Mapping TaskTemplate List to TaskTemplateDTO List failed: task template list cannot be empty.");
+    }
+    if (taskTemplateDTOList == null) {
+      taskTemplateDTOList = new ArrayList<>();
+    }
+    for (TaskTemplate taskTemplate : taskTemplateList) {
+      TaskTemplateDTO taskTemplateDTO = new TaskTemplateDTO();
+      taskTemplateDTO = mapTaskTemplateToTaskTemplateDTO(taskTemplate, taskTemplateDTO);
+      taskTemplateDTOList.add(taskTemplateDTO);
+    }
+    return taskTemplateDTOList;
   }
 
   private List<Task> getTaskIdListForStaff(User staff) {

@@ -3,6 +3,7 @@ package com.walmart.labs.controller;
 import com.walmart.labs.domain.User;
 import com.walmart.labs.dto.ResponseDTO;
 import com.walmart.labs.dto.TaskDTO;
+import com.walmart.labs.dto.TaskTemplateDTO;
 import com.walmart.labs.service.TaskService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class TaskController {
         (OAuth2Authentication) SecurityContextHolder.getContext().getAuthentication();
     User user = (User) authentication.getPrincipal();
 
-    List<TaskDTO> taskDTOList = taskService.getTaskList(user);
+    List<TaskDTO> taskDTOList = taskService.getTaskDTOList(user);
     responseDTO.addMessage("Get task list by user successfully!");
     responseDTO.setSuccess(true);
     responseDTO.setResult(taskDTOList);
@@ -111,7 +112,7 @@ public class TaskController {
    * @return Empty result with success/fail messages.
    */
   @RequestMapping(value = "/task", method = RequestMethod.DELETE)
-  public ResponseEntity<ResponseDTO<Void>> updateTask(@RequestParam Long taskId) {
+  public ResponseEntity<ResponseDTO<Void>> deleteTask(@RequestParam Long taskId) {
     ResponseDTO<Void> responseDTO = new ResponseDTO<>();
 
     OAuth2Authentication authentication =
@@ -120,6 +121,63 @@ public class TaskController {
 
     taskService.deleteTask(user, taskId);
     responseDTO.addMessage("Deleted a task successfully!");
+    responseDTO.setSuccess(true);
+    return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+  }
+
+  @RequestMapping(value = "/task/template", method = RequestMethod.GET)
+  public ResponseEntity<ResponseDTO<List<TaskTemplateDTO>>> getTaskTemplateListByUser() {
+    ResponseDTO<List<TaskTemplateDTO>> responseDTO = new ResponseDTO<>();
+
+    OAuth2Authentication authentication =
+        (OAuth2Authentication) SecurityContextHolder.getContext().getAuthentication();
+    User user = (User) authentication.getPrincipal();
+
+    List<TaskTemplateDTO> taskTemplateDTOList = taskService.getTaskTemplateDTOList(user);
+    responseDTO.addMessage("Get task template list by user successfully!");
+    responseDTO.setSuccess(true);
+    responseDTO.setResult(taskTemplateDTOList);
+    return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+  }
+
+  @RequestMapping(value = "/task/template", method = RequestMethod.POST)
+  public ResponseEntity<ResponseDTO<Void>> createTaskTemplate(@RequestBody TaskDTO taskDTO) {
+    ResponseDTO<Void> responseDTO = new ResponseDTO<>();
+
+    OAuth2Authentication authentication =
+        (OAuth2Authentication) SecurityContextHolder.getContext().getAuthentication();
+    User user = (User) authentication.getPrincipal();
+
+    taskService.createTaskTemplate(user, taskDTO);
+    responseDTO.addMessage("Created a task template successfully!");
+    responseDTO.setSuccess(true);
+    return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+  }
+
+  @RequestMapping(value = "/task/template", method = RequestMethod.PUT)
+  public ResponseEntity<ResponseDTO<Void>> updateTaskTemplate(@RequestBody TaskTemplateDTO taskTemplateDTO) {
+    ResponseDTO<Void> responseDTO = new ResponseDTO<>();
+
+    OAuth2Authentication authentication =
+        (OAuth2Authentication) SecurityContextHolder.getContext().getAuthentication();
+    User user = (User) authentication.getPrincipal();
+
+    taskService.updateTaskTemplate(user, taskTemplateDTO);
+    responseDTO.addMessage("Updated a task template successfully!");
+    responseDTO.setSuccess(true);
+    return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+  }
+
+  @RequestMapping(value = "/task/template", method = RequestMethod.DELETE)
+  public ResponseEntity<ResponseDTO<Void>> updateTask(@RequestParam Long taskTemplateId) {
+    ResponseDTO<Void> responseDTO = new ResponseDTO<>();
+
+    OAuth2Authentication authentication =
+        (OAuth2Authentication) SecurityContextHolder.getContext().getAuthentication();
+    User user = (User) authentication.getPrincipal();
+
+    taskService.deleteTaskTemplate(user, taskTemplateId);
+    responseDTO.addMessage("Deleted a task template successfully!");
     responseDTO.setSuccess(true);
     return new ResponseEntity<>(responseDTO, HttpStatus.OK);
   }

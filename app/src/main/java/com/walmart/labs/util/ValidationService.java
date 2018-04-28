@@ -4,13 +4,16 @@ import com.walmart.labs.domain.Corporation;
 import com.walmart.labs.domain.Task;
 import com.walmart.labs.domain.TaskPriority;
 import com.walmart.labs.domain.TaskStatus;
+import com.walmart.labs.domain.TaskTemplate;
 import com.walmart.labs.domain.User;
 import com.walmart.labs.domain.UserRole;
 import com.walmart.labs.dto.TaskDTO;
+import com.walmart.labs.dto.TaskTemplateDTO;
 import com.walmart.labs.exception.ExceptionFactory;
 import com.walmart.labs.exception.ExceptionType;
 import com.walmart.labs.repository.CorporationRepository;
 import com.walmart.labs.repository.TaskRepository;
+import com.walmart.labs.repository.TaskTemplateRepository;
 import com.walmart.labs.repository.UserRepository;
 import java.util.Arrays;
 import java.util.Date;
@@ -25,11 +28,13 @@ public class ValidationService {
   @Autowired private CorporationRepository corporationRepository;
   @Autowired private UserRepository userRepository;
   @Autowired private TaskRepository taskRepository;
+  @Autowired private TaskTemplateRepository taskTemplateRepository;
 
   public boolean validateTextField(String text) {
     // 65535 is the maximum length defined for domain property 'description', 'note', 'feedback' */
     return text.length() <= 65535;
   }
+
 
   public Task validateTaskIdForUpdatingOrDeletingForAdmin(Long taskId, User currentUser) {
     Task task = null;
@@ -374,6 +379,262 @@ public class ValidationService {
           }
         }
         task.setManagerSet(managerSet);
+      } else {
+        throw ExceptionFactory.create(
+            ExceptionType.IllegalRequestBodyFieldsException,
+            String.format(
+                "Detected invalid manager list within creating task request: cannot find corresponding records in database with provided manager ids %s",
+                utilService.setOfLongTypeToCommaSeparatedString(managerIdSet)));
+      }
+    } else {
+      throw ExceptionFactory.create(
+          ExceptionType.IllegalRequestBodyFieldsException,
+          "Detected invalid manager list within creating task request: manager list cannot be empty.");
+    }
+  }
+
+
+
+  public TaskTemplate validateTaskTemplateIdForUpdatingOrDeletingForAdmin(Long taskTemplateId, User currentUser) {
+    TaskTemplate taskTemplate = null;
+    Optional<TaskTemplate> taskTemplateOptional = taskTemplateRepository.findById(taskTemplateId);
+    if (taskTemplateOptional.isPresent()) {
+      taskTemplate = taskTemplateOptional.get();
+    } else {
+      throw ExceptionFactory.create(
+          ExceptionType.IllegalRequestParametersException,
+          String.format(
+              "Detected invalid task template id within updating task request: cannot find corresponding records in database with task template id %s",
+              Long.toString(taskTemplateId)));
+    }
+    return taskTemplate;
+  }
+
+  public TaskTemplate validateTaskTemplateIdForUpdatingOrDeletingForManager(Long taskTemplateId, User currentUser) {
+    TaskTemplate taskTemplate = null;
+    Optional<TaskTemplate> taskTemplateOptional = taskTemplateRepository.findById(taskTemplateId);
+    if (taskTemplateOptional.isPresent()) {
+      taskTemplate = taskTemplateOptional.get();
+      if (!taskTemplate.getCorporation().getId().equals(currentUser.getCorporation().getId())) {
+        throw ExceptionFactory.create(
+            ExceptionType.IllegalRequestParametersException,
+            "Detected invalid user: manager/staff are not allowed to delete task template for other corporation.");
+      }
+    } else {
+      throw ExceptionFactory.create(
+          ExceptionType.IllegalRequestParametersException,
+          String.format(
+              "Detected invalid task template id within updating task request: cannot find corresponding records in database with task template id %s",
+              Long.toString(taskTemplateId)));
+    }
+    return taskTemplate;
+  }
+
+  public void validateTaskTemplateDTOAndSetForAdmin(TaskTemplateDTO taskTemplateDTO, TaskTemplate taskTemplate) {
+    if (taskTemplateDTO == null) {
+      throw ExceptionFactory.create(
+          ExceptionType.IllegalRequestBodyFieldsException,
+          "Detected invalid taskTemplateDTO within creating task request: taskTemplateDTO cannot be empty.");
+    }
+  }
+
+  public void validateTaskNameForAdmin(String name, TaskTemplate taskTemplate) {
+    if (name != null) {
+      taskTemplate.setName(name);
+    } else {
+      throw ExceptionFactory.create(
+          ExceptionType.IllegalRequestBodyFieldsException,
+          "Detected invalid task template name within creating task request: task template name cannot be empty.");
+    }
+  }
+
+  public void validateTaskPriorityStringAndSetForAdmin(String taskPriorityString, TaskTemplate taskTemplate) {
+    TaskPriority taskPriority = TaskPriority.LOW;
+    if (taskPriorityString == null) {
+      taskTemplate.setTaskPriority(taskPriority);
+    } else {
+      taskPriority = TaskPriority.lookup(taskPriorityString);
+      if (taskPriority != null) {
+        taskTemplate.setTaskPriority(taskPriority);
+      } else {
+        throw ExceptionFactory.create(
+            ExceptionType.IllegalRequestBodyFieldsException,
+            String.format(
+                "Detected invalid task priority within creating task template request: task priority should be one of the following: %s",
+                Arrays.toString(utilService.getEnumNameList(TaskPriority.class))));
+      }
+    }
+  }
+
+  public void validateTaskDescriptionAndSetForAdmin(String description, TaskTemplate taskTemplate) {
+    if (description == null || this.validateTextField(description)) {
+      taskTemplate.setDescription(description);
+    } else {
+      throw ExceptionFactory.create(
+          ExceptionType.IllegalRequestBodyFieldsException,
+          "Detected invalid task description within creating task template request: text for description cannot contains more than 65535 characters.");
+    }
+  }
+
+  public void validateTaskNoteAndSetForAdmin(String note, TaskTemplate taskTemplate) {
+    if (note == null || this.validateTextField(note)) {
+      taskTemplate.setNote(note);
+    } else {
+      throw ExceptionFactory.create(
+          ExceptionType.IllegalRequestBodyFieldsException,
+          "Detected invalid task description within creating task template request: text for note cannot contains more than 65535 characters.");
+    }
+  }
+
+  public void validateTaskEstimatedDurationAndSetForAdmin(long estimatedDuration, TaskTemplate taskTemplate) {
+    if (estimatedDuration > 0) {
+      taskTemplate.setEstimatedDuration(estimatedDuration);
+    } else {
+      throw ExceptionFactory.create(
+          ExceptionType.IllegalRequestBodyFieldsException,
+          "Detected invalid input time or estimated finish time within creating task template request: input time cannot be greater than estimated finish time.");
+    }
+  }
+
+  public void validateTaskIsrecurringAndTaskRecurringPeriodCronExpressionAndSetForAdmin(
+      boolean isRecurring, String recurringPeriodCronExpression, TaskTemplate taskTemplate) {
+    if (isRecurring) {
+      taskTemplate.setRecurring(true);
+      /*
+       OPTIONAL field for task
+
+       9. if the task is a recurring task, this field will be used for storing the period of the recurring.
+      */
+      // TODO: validate recurringPeriodCronExpression
+      taskTemplate.setRecurringPeriodCronExpression(recurringPeriodCronExpression);
+    } else {
+      taskTemplate.setRecurring(false);
+    }
+  }
+
+  /*
+  1. check when editing a task (corporation is not null), manager/staff should not be allowed to update the old task with a different corporation.
+  2. check if corporationId is null
+  3. if corporationId is not null, check if there is a corresponding corporation record in database
+  4. check if current user belongs to the same corporation provided in dto, manager/staff should not be allowed to update the task with a different corporation
+   */
+  public Corporation validateTaskCorporationIdAndSetForAdmin(
+      Long corporationId, User currentUser, TaskTemplate taskTemplate) {
+    Corporation corporation = null;
+    if (taskTemplate.getCorporation() != null && !taskTemplate.getCorporation().getId().equals(corporationId)) {
+      throw ExceptionFactory.create(
+          ExceptionType.IllegalRequestBodyFieldsException,
+          "Detected invalid corporation id within updating task template request: task template to update must have the same corporation id as old task (change task corporation id is not allowed)");
+    }
+    if (corporationId != null) {
+      Optional<Corporation> optionalCorporation = corporationRepository.findById(corporationId);
+      if (optionalCorporation.isPresent()) {
+        corporation = optionalCorporation.get();
+        if (!corporation.getId().equals(currentUser.getCorporation().getId())) {
+          throw ExceptionFactory.create(
+              ExceptionType.IllegalRequestBodyFieldsException,
+              String.format(
+                  "Detected invalid corporation id within creating task template request: current user does not have authorization to create a task template with corporation id %s",
+                  Long.toString(corporationId)));
+        }
+        taskTemplate.setCorporation(corporation);
+      } else {
+        throw ExceptionFactory.create(
+            ExceptionType.IllegalRequestBodyFieldsException,
+            String.format(
+                "Detected invalid corporation id within creating task request: cannot find corresponding records in database with corporation id %s",
+                Long.toString(corporationId)));
+      }
+    } else {
+      throw ExceptionFactory.create(
+          ExceptionType.IllegalRequestBodyFieldsException,
+          "Detected invalid corporation id within creating task request: corporation id cannot be empty.");
+    }
+    return corporation;
+  }
+
+  /*
+  1. check if assignedStaffIdSet is null or empty
+  2. if assignedStaffIdSet is not null or not empty, check if there are corresponding staff user records in database. query by assignedStaffIdSet and corporation in dto. Get assignedStaffSet
+  3. loop over the assignedStaffSet to check if all the staff in it has 'ROLE_STAFF' role.
+  4. loop over the assignedStaffSet to check if all the staff in it has same corporation that are specified in dto
+   */
+  public void validateTaskAssignedStaffIdSetAndSetForAdmin(
+      Set<Long> assignedStaffIdSet, Corporation corporation, User currentUser, TaskTemplate taskTemplate) {
+    Set<User> assignedStaffSet = null;
+    if (assignedStaffIdSet != null && !assignedStaffIdSet.isEmpty()) {
+      assignedStaffSet =
+          userRepository.findAllByIdInAndCorporation(assignedStaffIdSet, corporation);
+      if (assignedStaffSet != null && !assignedStaffSet.isEmpty()) {
+        // verify if provided user id is a staff
+        // among all the provided staff id in the set, an error will be thrown if there is an id
+        // does
+        // not have a staff role.
+        for (User assignedStaff : assignedStaffSet) {
+          Set<UserRole> userRoleSet = assignedStaff.getAllowedRoleSet();
+          for (UserRole role : userRoleSet) {
+            if (!role.getName().equals("ROLE_USER_STAFF")) {
+              throw ExceptionFactory.create(
+                  ExceptionType.IllegalRequestBodyFieldsException,
+                  String.format(
+                      "Detected invalid staff id of staff id list within creating task request: user id %s is not mapped to a staff role",
+                      assignedStaff.getId()));
+            }
+          }
+          if (!assignedStaff.getCorporation().getId().equals(corporation.getId())) {
+            throw ExceptionFactory.create(
+                ExceptionType.IllegalRequestBodyFieldsException,
+                "Detected invalid staff of staff list within creating task request: staff cannot assign other corporation's staff to this task");
+          }
+        }
+        taskTemplate.setStaffSet(assignedStaffSet);
+      } else {
+        throw ExceptionFactory.create(
+            ExceptionType.IllegalRequestBodyFieldsException,
+            String.format(
+                "Detected invalid staff list within creating task request: cannot find corresponding records in database with provided staff ids %s",
+                utilService.setOfLongTypeToCommaSeparatedString(assignedStaffIdSet)));
+      }
+    } else {
+      throw ExceptionFactory.create(
+          ExceptionType.IllegalRequestBodyFieldsException,
+          "Detected invalid staff id list within creating task request: assigned staff id list cannot be empty.");
+    }
+  }
+
+  /*
+  1. check if managerIdSet is null or empty
+  2. if managerIdSet is not null or not empty, check if there are corresponding staff user records in database. query by assignedStaffIdSet and corporation in dto. Get assignedStaffSet
+  3. loop over the managerSet to check if all the manager in it has 'ROLE_USER_MANAGER' role.
+  4. loop over the managerSet to check if all the manager in it has same corporation that are specified in dto
+  */
+  public void validateTaskManagerIdSetAndSetForAdmin(
+      Set<Long> managerIdSet, Corporation corporation, User currentUser, TaskTemplate taskTemplate) {
+    Set<User> managerSet = null;
+    if (managerIdSet != null && !managerIdSet.isEmpty()) {
+      managerSet = userRepository.findAllByIdInAndCorporation(managerIdSet, corporation);
+      if (managerSet != null && !managerSet.isEmpty()) {
+        // verify if provided user id is a staff
+        // among all the provided staff id in the set, an error will be thrown if there the id does
+        // not have a staff role.
+        for (User manager : managerSet) {
+          Set<UserRole> userRoleSet = manager.getAllowedRoleSet();
+          for (UserRole role : userRoleSet) {
+            if (!role.getName().equals("ROLE_USER_MANAGER")) {
+              throw ExceptionFactory.create(
+                  ExceptionType.IllegalRequestBodyFieldsException,
+                  String.format(
+                      "Detected invalid manager id of manager id list within creating task request: user id %s is not mapped to a manager role",
+                      manager.getId()));
+            }
+          }
+          if (!manager.getCorporation().getId().equals(corporation.getId())) {
+            throw ExceptionFactory.create(
+                ExceptionType.IllegalRequestBodyFieldsException,
+                "Detected invalid manager of manager list within creating task request: cannot assign other corporation's manager to this task");
+          }
+        }
+        taskTemplate.setManagerSet(managerSet);
       } else {
         throw ExceptionFactory.create(
             ExceptionType.IllegalRequestBodyFieldsException,
