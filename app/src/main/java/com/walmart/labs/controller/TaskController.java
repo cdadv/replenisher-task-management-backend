@@ -10,10 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class TaskController {
@@ -76,5 +73,49 @@ public class TaskController {
     return new ResponseEntity<>(responseDTO, HttpStatus.OK);
   }
 
+  /**
+   * Update a existing task and save back to database. Needs dto object in the request body.
+   *
+   * @param taskDTO request body {@link TaskDTO} contains task name, task status, task description,
+   *     task note, task feedback, the time when user click create task button (timeInput),
+   *     estimated finish time, isRecurring indicates if this is a recurring tasks,
+   *     recurringPeriodCronExpression means if this task is a recurring task (isRecurring = true)
+   *     the period cron expression will help to set up the recurring period, corporationId
+   *     indicates which corporation this task belongs to, assignedStaffIdList means a list of staff
+   *     user id the task assinged to, managerIdList means a list of manager user id were set as
+   *     reporter(manager).
+   * @return Empty result with success/fail messages.
+   */
+  @RequestMapping(value = "/task", method = RequestMethod.PUT)
+  public ResponseEntity<ResponseDTO<Void>> updateTask(@RequestBody TaskDTO taskDTO) {
+    ResponseDTO<Void> responseDTO = new ResponseDTO<>();
 
+    OAuth2Authentication authentication =
+            (OAuth2Authentication) SecurityContextHolder.getContext().getAuthentication();
+    User user = (User) authentication.getPrincipal();
+
+    taskService.updateTask(user, taskDTO);
+    responseDTO.addMessage("Updated a task successfully!");
+    responseDTO.setSuccess(true);
+    return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+  }
+
+  /**
+   * Delete a existing task by provided task id.
+   * @param taskId taskId should be an id for an existing task record in database.
+   * @return Empty result with success/fail messages.
+   */
+  @RequestMapping(value = "/task", method = RequestMethod.DELETE)
+  public ResponseEntity<ResponseDTO<Void>> updateTask(@RequestParam Long taskId) {
+    ResponseDTO<Void> responseDTO = new ResponseDTO<>();
+
+    OAuth2Authentication authentication =
+            (OAuth2Authentication) SecurityContextHolder.getContext().getAuthentication();
+    User user = (User) authentication.getPrincipal();
+
+    taskService.deleteTask(user, taskId);
+    responseDTO.addMessage("Deleted a task successfully!");
+    responseDTO.setSuccess(true);
+    return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+  }
 }

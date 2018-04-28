@@ -92,32 +92,8 @@ public class TaskService {
    */
   public void createTask(User user, TaskDTO taskDTO) {
     Task task = new Task();
-    task = mapTaskDTOToTask(taskDTO, task);
-    Set<User> taskAssignedStaffSet = task.getStaffSet();
-    Set<User> taskManagerSet = task.getManagerSet();
-    Set<UserRole> allowedRoleSet = user.getAllowedRoleSet();
-    for (UserRole role : allowedRoleSet) {
-      switch (role.getName()) {
-          // Assuming there are only three roles supported in backend.
-          // TODO: add more sophisticated checking between logged in user and taskAssignedStaffSet
-          // and taskManagerSet.
-        case "ROLE_ADMIN":
-          break;
-        case "ROLE_USER_MANAGER":
-          break;
-        case "ROLE_USER_STAFF":
-          if (taskManagerSet.size() > 1) {
-            throw ExceptionFactory.create(
-                ExceptionType.IllegalRequestParametersException,
-                "Detected invalid user usage: staffs can only assign one manager for themselves");
-          }
-          break;
-        default:
-          throw ExceptionFactory.create(
-              ExceptionType.IllegalRequestParametersException,
-              String.format("Detected invalid role for user: %s", role.getName()));
-      }
-    }
+    task = mapTaskDTOToTask(user, taskDTO, task);
+    validationService.validateStaffListAndManagerListInTask(user, task);
     createTask(task);
     logger.info("Created a task successfully!");
   }
@@ -126,7 +102,52 @@ public class TaskService {
     taskRepository.save(task);
   }
 
-  private Task mapTaskDTOToTask(TaskDTO taskDTO, Task task) {
+  public void updateTask(User user, TaskDTO taskDTO) {
+    Long taskId = taskDTO.getTaskId();
+    Task task = null;
+    Optional<Task> taskOptional = taskRepository.findById(taskId);
+    if (taskOptional.isPresent()) {
+      task = taskOptional.get();
+    } else {
+      throw ExceptionFactory.create(
+          ExceptionType.IllegalRequestBodyFieldsException,
+          String.format(
+              "Detected invalid task id within updating task request: cannot find corresponding records in database with task id %s",
+              Long.toString(taskId)));
+    }
+    task = mapTaskDTOToTask(user, taskDTO, task);
+    validationService.validateStaffListAndManagerListInTask(user, task);
+    updateTask(task);
+    logger.info("Updated a task successfully!");
+  }
+
+  public void updateTask(Task task) {
+    taskRepository.save(task);
+  }
+
+  public void deleteTask(User user, Long taskId) {
+    Task task = null;
+    Optional<Task> taskOptional = taskRepository.findById(taskId);
+    if (taskOptional.isPresent()) {
+      task = taskOptional.get();
+    } else {
+      throw ExceptionFactory.create(
+          ExceptionType.IllegalRequestParametersException,
+          String.format(
+              "Detected invalid task id within updating task request: cannot find corresponding records in database with task id %s",
+              Long.toString(taskId)));
+    }
+
+    validationService.validateStaffListAndManagerListInTask(user, task);
+    deleteTask(task);
+    logger.info("Deleted a task successfully!");
+  }
+
+  public void deleteTask(Task task) {
+    taskRepository.delete(task);
+  }
+
+  private Task mapTaskDTOToTask(User currentUser, TaskDTO taskDTO, Task task) {
     if (taskDTO == null) {
       throw ExceptionFactory.create(
           ExceptionType.IllegalRequestBodyFieldsException,
@@ -278,10 +299,21 @@ public class TaskService {
     */
     Corporation corporation = null;
     Long corporationId = taskDTO.getCorporationId();
+    if (task.getCorporation() != null && !task.getCorporation().getId().equals(corporationId)) {
+      throw ExceptionFactory.create(
+              ExceptionType.IllegalRequestBodyFieldsException,
+                      "Detected invalid corporation id within updating task request: task to update must have the same corporation id as old task (change task corporation id is not allowed)");
+    }
     if (corporationId != null) {
       Optional<Corporation> optionalCorporation = corporationRepository.findById(corporationId);
       if (optionalCorporation.isPresent()) {
         corporation = optionalCorporation.get();
+        if (!corporation.equals(currentUser.getCorporation())) {
+          throw ExceptionFactory.create(
+                  ExceptionType.IllegalRequestBodyFieldsException,
+                  String.format(
+                          "Detected invalid corporation id within creating task request: current user does not have authorization to create a task with corporation id %s", Long.toString(corporationId)));
+        }
         task.setCorporation(corporation);
       } else {
         throw ExceptionFactory.create(
@@ -303,25 +335,36 @@ public class TaskService {
     */
     Set<Long> assignedStaffIdSet = taskDTO.getAssignedStaffIdSet();
     Set<User> assignedStaffSet = null;
+    boolean assignedStaffListInOldTaskContainsCurrentUser = false;
+    if (task.getStaffSet() == null) {
+      assignedStaffListInOldTaskContainsCurrentUser = true;
+    }
     if (assignedStaffIdSet != null && !assignedStaffIdSet.isEmpty()) {
-      // TODO: check if provided staff id refer to a staff
       assignedStaffSet =
           userRepository.findAllByIdInAndCorporation(assignedStaffIdSet, corporation);
       if (assignedStaffSet != null && !assignedStaffSet.isEmpty()) {
         // verify if provided user id is a staff
-        // among all the provided staff id in the set, an error will be thrown if there the id does
+        // among all the provided staff id in the set, an error will be thrown if there is an id does
         // not have a staff role.
-        for (User user : assignedStaffSet) {
-          Set<UserRole> userRoleSet = user.getAllowedRoleSet();
+        for (User assignedStaff : assignedStaffSet) {
+          if (task.getStaffSet() != null && assignedStaff.equals(currentUser)) {
+            assignedStaffListInOldTaskContainsCurrentUser = true;
+          }
+          Set<UserRole> userRoleSet = assignedStaff.getAllowedRoleSet();
           for (UserRole role : userRoleSet) {
             if (!role.getName().equals("ROLE_USER_STAFF")) {
               throw ExceptionFactory.create(
                   ExceptionType.IllegalRequestBodyFieldsException,
                   String.format(
                       "Detected invalid staff id of staff id list within creating task request: user id %s is not mapped to a staff role",
-                      user.getId()));
+                      assignedStaff.getId()));
             }
           }
+        }
+        if (!assignedStaffListInOldTaskContainsCurrentUser) {
+          throw ExceptionFactory.create(
+                  ExceptionType.IllegalRequestBodyFieldsException,
+                          "Detected invalid current user: staff list can be updated only when the staff list of old task contains current user");
         }
         task.setStaffSet(assignedStaffSet);
       } else {
@@ -351,15 +394,15 @@ public class TaskService {
         // verify if provided user id is a staff
         // among all the provided staff id in the set, an error will be thrown if there the id does
         // not have a staff role.
-        for (User user : managerSet) {
-          Set<UserRole> userRoleSet = user.getAllowedRoleSet();
+        for (User manager : managerSet) {
+          Set<UserRole> userRoleSet = manager.getAllowedRoleSet();
           for (UserRole role : userRoleSet) {
             if (!role.getName().equals("ROLE_USER_MANAGER")) {
               throw ExceptionFactory.create(
                   ExceptionType.IllegalRequestBodyFieldsException,
                   String.format(
                       "Detected invalid manager id of manager id list within creating task request: user id %s is not mapped to a manager role",
-                      user.getId()));
+                      manager.getId()));
             }
           }
         }
@@ -404,7 +447,7 @@ public class TaskService {
       taskDTO = new TaskDTO();
     }
     // Don't need to check task's fields.
-    taskDTO.setId(task.getId());
+    taskDTO.setTaskId(task.getId());
     taskDTO.setName(task.getName());
     taskDTO.setTaskStatusString(task.getTaskStatus().name());
     taskDTO.setTaskPriorityString(task.getTaskPriority().name());

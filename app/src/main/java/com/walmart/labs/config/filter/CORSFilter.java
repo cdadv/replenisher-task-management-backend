@@ -12,10 +12,10 @@ import java.io.IOException;
 @Component
 public class CORSFilter implements Filter {
 
-    private final Logger logger = LoggerFactory.getLogger(CORSFilter.class);
+    private static final Logger logger = LoggerFactory.getLogger(CORSFilter.class);
 
     public CORSFilter() {
-        logger.info("SimpleCORSFilter init");
+        logger.info("CORSFilter init");
     }
 
     @Override

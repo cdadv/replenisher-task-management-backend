@@ -1,7 +1,5 @@
 package com.walmart.labs.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.walmart.labs.domain.Task;
 import java.util.Date;
 import java.util.Set;
@@ -13,9 +11,7 @@ import java.util.Set;
  */
 public class TaskDTO {
   // required field for editing
-  // Ignoring property when deserializing
-  @JsonIgnore
-  private Long id;
+  private Long taskId;
   // required field for creating
   private String name;
   // required field for creating
@@ -44,14 +40,12 @@ public class TaskDTO {
   // required field for creating
   private Set<Long> managerIdSet;
 
-  @JsonProperty
-  public Long getId() {
-    return id;
+  public Long getTaskId() {
+    return taskId;
   }
 
-  @JsonIgnore
-  public void setId(Long id) {
-    this.id = id;
+  public void setTaskId(Long taskId) {
+    this.taskId = taskId;
   }
 
   public String getName() {
