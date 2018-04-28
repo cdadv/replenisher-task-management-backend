@@ -43,10 +43,8 @@ public class TaskDTO {
   private Set<Long> managerIdSet;
 
   // following two fields will be ignored during deserialization
-  @JsonIgnore
-  private Set<UserDTO> assignedStaffUserDTOSet;
-  @JsonIgnore
-  private Set<UserDTO> managerUserDTOSet;
+  @JsonIgnore private Set<UserDTO> assignedStaffUserDTOSet;
+  @JsonIgnore private Set<UserDTO> managerUserDTOSet;
 
   public Long getTaskId() {
     return taskId;
@@ -166,8 +164,7 @@ public class TaskDTO {
   }
 
   @JsonIgnore
-  public void setAssignedStaffUserDTOSet(
-      Set<UserDTO> assignedStaffUserDTOSet) {
+  public void setAssignedStaffUserDTOSet(Set<UserDTO> assignedStaffUserDTOSet) {
     this.assignedStaffUserDTOSet = assignedStaffUserDTOSet;
   }
 

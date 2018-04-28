@@ -155,7 +155,8 @@ public class TaskController {
   }
 
   @RequestMapping(value = "/task/template", method = RequestMethod.PUT)
-  public ResponseEntity<ResponseDTO<Void>> updateTaskTemplate(@RequestBody TaskTemplateDTO taskTemplateDTO) {
+  public ResponseEntity<ResponseDTO<Void>> updateTaskTemplate(
+      @RequestBody TaskTemplateDTO taskTemplateDTO) {
     ResponseDTO<Void> responseDTO = new ResponseDTO<>();
 
     OAuth2Authentication authentication =

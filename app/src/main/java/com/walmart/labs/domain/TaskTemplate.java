@@ -11,10 +11,12 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import org.hibernate.annotations.Type;
 
-/** For fields' documentations refer to {@link Task} domain.
+/**
+ * For fields' documentations refer to {@link Task} domain.
  *
- * Difference between Task and TaskTemplate: TaskTemplate does not have TaskStatus, feedback, timeInput, timeEstimatedFinish (estimatedDuration instead),
- * */
+ * <p>Difference between Task and TaskTemplate: TaskTemplate does not have TaskStatus, feedback,
+ * timeInput, timeEstimatedFinish (estimatedDuration instead),
+ */
 @Entity
 public class TaskTemplate extends BasicDomain {
   private String name;

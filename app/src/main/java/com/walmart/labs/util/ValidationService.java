@@ -35,7 +35,6 @@ public class ValidationService {
     return text.length() <= 65535;
   }
 
-
   public Task validateTaskIdForUpdatingOrDeletingForAdmin(Long taskId, User currentUser) {
     Task task = null;
     Optional<Task> taskOptional = taskRepository.findById(taskId);
@@ -393,9 +392,8 @@ public class ValidationService {
     }
   }
 
-
-
-  public TaskTemplate validateTaskTemplateIdForUpdatingOrDeletingForAdmin(Long taskTemplateId, User currentUser) {
+  public TaskTemplate validateTaskTemplateIdForUpdatingOrDeletingForAdmin(
+      Long taskTemplateId, User currentUser) {
     TaskTemplate taskTemplate = null;
     Optional<TaskTemplate> taskTemplateOptional = taskTemplateRepository.findById(taskTemplateId);
     if (taskTemplateOptional.isPresent()) {
@@ -410,7 +408,8 @@ public class ValidationService {
     return taskTemplate;
   }
 
-  public TaskTemplate validateTaskTemplateIdForUpdatingOrDeletingForManager(Long taskTemplateId, User currentUser) {
+  public TaskTemplate validateTaskTemplateIdForUpdatingOrDeletingForManager(
+      Long taskTemplateId, User currentUser) {
     TaskTemplate taskTemplate = null;
     Optional<TaskTemplate> taskTemplateOptional = taskTemplateRepository.findById(taskTemplateId);
     if (taskTemplateOptional.isPresent()) {
@@ -430,7 +429,8 @@ public class ValidationService {
     return taskTemplate;
   }
 
-  public void validateTaskTemplateDTOAndSetForAdmin(TaskTemplateDTO taskTemplateDTO, TaskTemplate taskTemplate) {
+  public void validateTaskTemplateDTOAndSetForAdmin(
+      TaskTemplateDTO taskTemplateDTO, TaskTemplate taskTemplate) {
     if (taskTemplateDTO == null) {
       throw ExceptionFactory.create(
           ExceptionType.IllegalRequestBodyFieldsException,
@@ -448,7 +448,8 @@ public class ValidationService {
     }
   }
 
-  public void validateTaskPriorityStringAndSetForAdmin(String taskPriorityString, TaskTemplate taskTemplate) {
+  public void validateTaskPriorityStringAndSetForAdmin(
+      String taskPriorityString, TaskTemplate taskTemplate) {
     TaskPriority taskPriority = TaskPriority.LOW;
     if (taskPriorityString == null) {
       taskTemplate.setTaskPriority(taskPriority);
@@ -486,7 +487,8 @@ public class ValidationService {
     }
   }
 
-  public void validateTaskEstimatedDurationAndSetForAdmin(long estimatedDuration, TaskTemplate taskTemplate) {
+  public void validateTaskEstimatedDurationAndSetForAdmin(
+      long estimatedDuration, TaskTemplate taskTemplate) {
     if (estimatedDuration > 0) {
       taskTemplate.setEstimatedDuration(estimatedDuration);
     } else {
@@ -521,7 +523,8 @@ public class ValidationService {
   public Corporation validateTaskCorporationIdAndSetForAdmin(
       Long corporationId, User currentUser, TaskTemplate taskTemplate) {
     Corporation corporation = null;
-    if (taskTemplate.getCorporation() != null && !taskTemplate.getCorporation().getId().equals(corporationId)) {
+    if (taskTemplate.getCorporation() != null
+        && !taskTemplate.getCorporation().getId().equals(corporationId)) {
       throw ExceptionFactory.create(
           ExceptionType.IllegalRequestBodyFieldsException,
           "Detected invalid corporation id within updating task template request: task template to update must have the same corporation id as old task (change task corporation id is not allowed)");
@@ -560,7 +563,10 @@ public class ValidationService {
   4. loop over the assignedStaffSet to check if all the staff in it has same corporation that are specified in dto
    */
   public void validateTaskAssignedStaffIdSetAndSetForAdmin(
-      Set<Long> assignedStaffIdSet, Corporation corporation, User currentUser, TaskTemplate taskTemplate) {
+      Set<Long> assignedStaffIdSet,
+      Corporation corporation,
+      User currentUser,
+      TaskTemplate taskTemplate) {
     Set<User> assignedStaffSet = null;
     if (assignedStaffIdSet != null && !assignedStaffIdSet.isEmpty()) {
       assignedStaffSet =
@@ -609,7 +615,10 @@ public class ValidationService {
   4. loop over the managerSet to check if all the manager in it has same corporation that are specified in dto
   */
   public void validateTaskManagerIdSetAndSetForAdmin(
-      Set<Long> managerIdSet, Corporation corporation, User currentUser, TaskTemplate taskTemplate) {
+      Set<Long> managerIdSet,
+      Corporation corporation,
+      User currentUser,
+      TaskTemplate taskTemplate) {
     Set<User> managerSet = null;
     if (managerIdSet != null && !managerIdSet.isEmpty()) {
       managerSet = userRepository.findAllByIdInAndCorporation(managerIdSet, corporation);

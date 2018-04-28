@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +81,9 @@ public class TaskService {
   }
 
   /**
-   * Query task template list based on user's role. And then map list of task template to list of task template dto.
+   * Query task template list based on user's role. And then map list of task template to list of
+   * task template dto.
+   *
    * @param user
    * @return list of TaskTemplateDTO
    */
@@ -92,17 +93,19 @@ public class TaskService {
     Set<UserRole> allowedRoleSet = user.getAllowedRoleSet();
     for (UserRole role : allowedRoleSet) {
       switch (role.getName()) {
-        // Assuming there are only three roles supported in backend.
+          // Assuming there are only three roles supported in backend.
         case "ROLE_ADMIN":
           taskTemplateList = taskTemplateRepository.findAll();
           break;
         case "ROLE_USER_MANAGER":
-          // TODO: simplified querying process for task template. query all by corporation for now. (query by creator of task templates)
+          // TODO: simplified querying process for task template. query all by corporation for now.
+          // (query by creator of task templates)
           taskTemplateList = taskTemplateRepository.findAllByCorporation(user.getCorporation());
           break;
         case "ROLE_USER_STAFF":
           throw ExceptionFactory.create(
-              ExceptionType.IllegalRequestBodyFieldsException, "Detected invalid role for user: staff user is not authorized to query task template list");
+              ExceptionType.IllegalRequestBodyFieldsException,
+              "Detected invalid role for user: staff user is not authorized to query task template list");
         default:
           throw ExceptionFactory.create(
               ExceptionType.IllegalRequestBodyFieldsException,
@@ -112,7 +115,8 @@ public class TaskService {
     if (taskTemplateList == null || taskTemplateList.isEmpty()) {
       return new ArrayList<>();
     }
-    taskTemplateDTOList = mapTaskTemplateListToTaskTemplateDTOList(taskTemplateList, taskTemplateDTOList);
+    taskTemplateDTOList =
+        mapTaskTemplateListToTaskTemplateDTOList(taskTemplateList, taskTemplateDTOList);
     logger.info("Queried a task template successfully!");
     return taskTemplateDTOList;
   }
@@ -135,6 +139,7 @@ public class TaskService {
 
   /**
    * Extract all the information from TaskDTO to Task first and map Task to TaskTemplate, then save.
+   *
    * @param user
    * @param taskDTO
    */
@@ -165,7 +170,8 @@ public class TaskService {
 
   public void updateTaskTemplate(User user, TaskTemplateDTO taskTemplateDTO) {
     Long taskTemplateId = taskTemplateDTO.getTaskTemplateId();
-    TaskTemplate taskTemplate = validationService.validateTaskTemplateIdForUpdatingOrDeletingForAdmin(taskTemplateId, user);
+    TaskTemplate taskTemplate =
+        validationService.validateTaskTemplateIdForUpdatingOrDeletingForAdmin(taskTemplateId, user);
     taskTemplate = mapTaskTemplateDTOToTaskTemplate(user, taskTemplateDTO, taskTemplate);
     updateTaskTemplate(taskTemplate);
     logger.info("Updated a task template successfully!");
@@ -209,16 +215,21 @@ public class TaskService {
     Set<UserRole> allowedRoleSet = user.getAllowedRoleSet();
     for (UserRole role : allowedRoleSet) {
       switch (role.getName()) {
-        // Assuming there are only three roles supported in backend.
+          // Assuming there are only three roles supported in backend.
         case "ROLE_ADMIN":
-          taskTemplate = validationService.validateTaskTemplateIdForUpdatingOrDeletingForAdmin(taskTemplateId, user);
+          taskTemplate =
+              validationService.validateTaskTemplateIdForUpdatingOrDeletingForAdmin(
+                  taskTemplateId, user);
           break;
         case "ROLE_USER_MANAGER":
-          taskTemplate = validationService.validateTaskTemplateIdForUpdatingOrDeletingForManager(taskTemplateId, user);
+          taskTemplate =
+              validationService.validateTaskTemplateIdForUpdatingOrDeletingForManager(
+                  taskTemplateId, user);
           break;
         case "ROLE_USER_STAFF":
           throw ExceptionFactory.create(
-              ExceptionType.IllegalRequestBodyFieldsException, "Detected invalid role for user: staff user is not authorized to delete task template.");
+              ExceptionType.IllegalRequestBodyFieldsException,
+              "Detected invalid role for user: staff user is not authorized to delete task template.");
         default:
           throw ExceptionFactory.create(
               ExceptionType.IllegalRequestBodyFieldsException,
@@ -262,7 +273,8 @@ public class TaskService {
           validationService.validateTaskNameForAdmin(name, taskTemplate);
           // OPTIONAL field for task: 3 extract task priority
           taskPriorityString = taskTemplateDTO.getTaskPriorityString();
-          validationService.validateTaskPriorityStringAndSetForAdmin(taskPriorityString, taskTemplate);
+          validationService.validateTaskPriorityStringAndSetForAdmin(
+              taskPriorityString, taskTemplate);
           // OPTIONAL field for task: 4. extract task descriptions
           description = taskTemplateDTO.getDescription();
           validationService.validateTaskDescriptionAndSetForAdmin(description, taskTemplate);
@@ -272,7 +284,8 @@ public class TaskService {
           // REQUIRED field for task: 7. extract task input time (when the task is created by the
           // user.)
           estimatedDuration = taskTemplateDTO.getEstimatedDuration();
-          validationService.validateTaskEstimatedDurationAndSetForAdmin(estimatedDuration, taskTemplate);
+          validationService.validateTaskEstimatedDurationAndSetForAdmin(
+              estimatedDuration, taskTemplate);
           // OPTIONAL field for task: 9. extract if the task is recurring task or not.
           isRecurring = taskTemplateDTO.isRecurring();
           recurringPeriodCronExpression = taskTemplateDTO.getRecurringPeriodCronExpression();
@@ -302,7 +315,8 @@ public class TaskService {
           validationService.validateTaskNameForAdmin(name, taskTemplate);
           // OPTIONAL field for task: 3 extract task priority
           taskPriorityString = taskTemplateDTO.getTaskPriorityString();
-          validationService.validateTaskPriorityStringAndSetForAdmin(taskPriorityString, taskTemplate);
+          validationService.validateTaskPriorityStringAndSetForAdmin(
+              taskPriorityString, taskTemplate);
           // OPTIONAL field for task: 4. extract task descriptions
           description = taskTemplateDTO.getDescription();
           validationService.validateTaskDescriptionAndSetForAdmin(description, taskTemplate);
@@ -312,7 +326,8 @@ public class TaskService {
           // REQUIRED field for task: 7. extract task input time (when the task is created by the
           // user.)
           estimatedDuration = taskTemplateDTO.getEstimatedDuration();
-          validationService.validateTaskEstimatedDurationAndSetForAdmin(estimatedDuration, taskTemplate);
+          validationService.validateTaskEstimatedDurationAndSetForAdmin(
+              estimatedDuration, taskTemplate);
           // OPTIONAL field for task: 9. extract if the task is recurring task or not.
           isRecurring = taskTemplateDTO.isRecurring();
           recurringPeriodCronExpression = taskTemplateDTO.getRecurringPeriodCronExpression();
@@ -337,7 +352,8 @@ public class TaskService {
           break;
         case "ROLE_USER_STAFF":
           throw ExceptionFactory.create(
-              ExceptionType.IllegalRequestBodyFieldsException, "Detected invalid role for user: staff user is not authorized to update task template");
+              ExceptionType.IllegalRequestBodyFieldsException,
+              "Detected invalid role for user: staff user is not authorized to update task template");
         default:
           throw ExceptionFactory.create(
               ExceptionType.IllegalRequestBodyFieldsException,
@@ -559,7 +575,7 @@ public class TaskService {
 
     Set<Long> assignedStaffIdSet = new HashSet<>();
     Set<UserDTO> assignedStaffUserDTOSet = new HashSet<>();
-    for (User staff: task.getStaffSet()) {
+    for (User staff : task.getStaffSet()) {
       assignedStaffIdSet.add(staff.getId());
       UserDTO assignedStaffUserDTO = new UserDTO();
       assignedStaffUserDTOSet.add(assignedStaffUserDTO);
@@ -576,7 +592,7 @@ public class TaskService {
 
     Set<Long> managerIdSet = new HashSet<>();
     Set<UserDTO> managerUserDTOSet = new HashSet<>();
-    for (User manager: task.getManagerSet()) {
+    for (User manager : task.getManagerSet()) {
       managerIdSet.add(manager.getId());
       UserDTO managerUserDTO = new UserDTO();
       managerUserDTOSet.add(managerUserDTO);
@@ -623,7 +639,8 @@ public class TaskService {
     taskTemplate.setDescription(task.getDescription());
     taskTemplate.setNote(task.getNote());
     taskTemplate.setTaskPriority(task.getTaskPriority());
-    taskTemplate.setEstimatedDuration(task.getTimeEstimatedFinish().getTime() - task.getTimeInput().getTime());
+    taskTemplate.setEstimatedDuration(
+        task.getTimeEstimatedFinish().getTime() - task.getTimeInput().getTime());
     taskTemplate.setRecurring(task.isRecurring());
     taskTemplate.setRecurringPeriodCronExpression(task.getRecurringPeriodCronExpression());
     taskTemplate.setCorporation(task.getCorporation());
@@ -632,7 +649,8 @@ public class TaskService {
     return taskTemplate;
   }
 
-  private TaskTemplateDTO mapTaskTemplateToTaskTemplateDTO(TaskTemplate taskTemplate, TaskTemplateDTO taskTemplateDTO) {
+  private TaskTemplateDTO mapTaskTemplateToTaskTemplateDTO(
+      TaskTemplate taskTemplate, TaskTemplateDTO taskTemplateDTO) {
     if (taskTemplate == null) {
       throw ExceptionFactory.create(
           ExceptionType.IllegalArgumentException,
@@ -641,18 +659,20 @@ public class TaskService {
     if (taskTemplateDTO == null) {
       taskTemplateDTO = new TaskTemplateDTO();
     }
+    taskTemplateDTO.setTaskTemplateId(taskTemplate.getId());
     taskTemplateDTO.setName(taskTemplate.getName());
     taskTemplateDTO.setDescription(taskTemplate.getDescription());
     taskTemplateDTO.setNote(taskTemplate.getNote());
     taskTemplateDTO.setTaskPriorityString(taskTemplate.getTaskPriority().name());
     taskTemplateDTO.setEstimatedDuration(taskTemplate.getEstimatedDuration());
     taskTemplateDTO.setRecurring(taskTemplate.isRecurring());
-    taskTemplateDTO.setRecurringPeriodCronExpression(taskTemplate.getRecurringPeriodCronExpression());
+    taskTemplateDTO.setRecurringPeriodCronExpression(
+        taskTemplate.getRecurringPeriodCronExpression());
     taskTemplateDTO.setCorporationId(taskTemplate.getCorporation().getId());
 
     Set<Long> assignedStaffIdSet = new HashSet<>();
     Set<UserDTO> assignedStaffUserDTOSet = new HashSet<>();
-    for (User staff: taskTemplate.getStaffSet()) {
+    for (User staff : taskTemplate.getStaffSet()) {
       assignedStaffIdSet.add(staff.getId());
       UserDTO assignedStaffUserDTO = new UserDTO();
       assignedStaffUserDTOSet.add(assignedStaffUserDTO);
@@ -669,7 +689,7 @@ public class TaskService {
 
     Set<Long> managerIdSet = new HashSet<>();
     Set<UserDTO> managerUserDTOSet = new HashSet<>();
-    for (User manager: taskTemplate.getManagerSet()) {
+    for (User manager : taskTemplate.getManagerSet()) {
       managerIdSet.add(manager.getId());
       UserDTO managerUserDTO = new UserDTO();
       managerUserDTOSet.add(managerUserDTO);
@@ -686,7 +706,8 @@ public class TaskService {
     return taskTemplateDTO;
   }
 
-  private List<TaskTemplateDTO> mapTaskTemplateListToTaskTemplateDTOList(List<TaskTemplate> taskTemplateList, List<TaskTemplateDTO> taskTemplateDTOList) {
+  private List<TaskTemplateDTO> mapTaskTemplateListToTaskTemplateDTOList(
+      List<TaskTemplate> taskTemplateList, List<TaskTemplateDTO> taskTemplateDTOList) {
     if (taskTemplateList == null || taskTemplateList.isEmpty()) {
       throw ExceptionFactory.create(
           ExceptionType.IllegalArgumentException,
