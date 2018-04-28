@@ -3,6 +3,8 @@ package com.walmart.labs.dto;
 import com.walmart.labs.domain.Task;
 import java.util.Date;
 import java.util.Set;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * TaskDTO used for creating and editing task object
@@ -39,6 +41,12 @@ public class TaskDTO {
   private Set<Long> assignedStaffIdSet;
   // required field for creating
   private Set<Long> managerIdSet;
+
+  // following two fields will be ignored during deserialization
+  @JsonIgnore
+  private Set<UserDTO> assignedStaffUserDTOSet;
+  @JsonIgnore
+  private Set<UserDTO> managerUserDTOSet;
 
   public Long getTaskId() {
     return taskId;
@@ -150,5 +158,26 @@ public class TaskDTO {
 
   public void setManagerIdSet(Set<Long> managerIdSet) {
     this.managerIdSet = managerIdSet;
+  }
+
+  @JsonProperty
+  public Set<UserDTO> getAssignedStaffUserDTOSet() {
+    return assignedStaffUserDTOSet;
+  }
+
+  @JsonIgnore
+  public void setAssignedStaffUserDTOSet(
+      Set<UserDTO> assignedStaffUserDTOSet) {
+    this.assignedStaffUserDTOSet = assignedStaffUserDTOSet;
+  }
+
+  @JsonProperty
+  public Set<UserDTO> getManagerUserDTOSet() {
+    return managerUserDTOSet;
+  }
+
+  @JsonIgnore
+  public void setManagerUserDTOSet(Set<UserDTO> managerUserDTOSet) {
+    this.managerUserDTOSet = managerUserDTOSet;
   }
 }

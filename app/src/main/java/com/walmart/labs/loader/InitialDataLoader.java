@@ -124,6 +124,8 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
     userAdmin.setUsername("admin_user");
     // TODO: encrypt the password
     userAdmin.setPassword(new BCryptPasswordEncoder().encode("admin_password"));
+    userAdmin.setFullName("admin");
+    userAdmin.setEmailAddress("admin@admin.com");
     userAdmin.setCorporation(corporationDemo);
     userAdmin.setAllowedRoleSet(new HashSet<>(Arrays.asList(roleAdmin)));
     userAdmin.setEnabled(true);
@@ -136,6 +138,8 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
     userStaff1.setUsername("staff_user_1");
     // TODO: encrypt the password
     userStaff1.setPassword(new BCryptPasswordEncoder().encode("staff_password_1"));
+    userStaff1.setFullName("staff1");
+    userStaff1.setEmailAddress("staff1@staff1.com");
     userStaff1.setCorporation(corporationDemo);
     userStaff1.setAllowedRoleSet(new HashSet<>(Arrays.asList(roleUserStaff)));
     userStaff1.setEnabled(true);
@@ -148,6 +152,8 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
     userStaff2.setUsername("staff_user_2");
     // TODO: encrypt the password
     userStaff2.setPassword(new BCryptPasswordEncoder().encode("staff_password_2"));
+    userStaff2.setFullName("staff2");
+    userStaff2.setEmailAddress("staff2@staff2.com");
     userStaff2.setCorporation(corporationDemo);
     userStaff2.setAllowedRoleSet(new HashSet<>(Arrays.asList(roleUserStaff)));
     userStaff2.setEnabled(true);
@@ -160,6 +166,8 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
     userStaff3.setUsername("staff_user_3");
     // TODO: encrypt the password
     userStaff3.setPassword(new BCryptPasswordEncoder().encode("staff_password_3"));
+    userStaff3.setFullName("staff3");
+    userStaff3.setEmailAddress("staff3@staff3.com");
     userStaff3.setCorporation(corporationDemo);
     userStaff3.setAllowedRoleSet(new HashSet<>(Arrays.asList(roleUserStaff)));
     userStaff3.setEnabled(true);
@@ -172,6 +180,8 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
     userManager1.setUsername("manager_user_1");
     // TODO: encrypt the password
     userManager1.setPassword(new BCryptPasswordEncoder().encode("manager_password_1"));
+    userManager1.setFullName("manager1");
+    userManager1.setEmailAddress("manager1@manager1.com");
     userManager1.setCorporation(corporationDemo);
     userManager1.setAllowedRoleSet(new HashSet<>(Arrays.asList(roleUserManager)));
     userManager1.setEnabled(true);
@@ -184,6 +194,8 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
     userManager2.setUsername("manager_user_2");
     // TODO: encrypt the password
     userManager2.setPassword(new BCryptPasswordEncoder().encode("manager_password_2"));
+    userManager1.setFullName("manager2");
+    userManager1.setEmailAddress("manager2@manager2.com");
     userManager2.setCorporation(corporationDemo);
     userManager2.setAllowedRoleSet(new HashSet<>(Arrays.asList(roleUserManager)));
     userManager2.setEnabled(true);

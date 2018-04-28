@@ -7,6 +7,7 @@ import com.walmart.labs.domain.UserRole;
 import com.walmart.labs.domain.mapping.TaskManagerUserMapping;
 import com.walmart.labs.domain.mapping.TaskStaffUserMapping;
 import com.walmart.labs.dto.TaskDTO;
+import com.walmart.labs.dto.UserDTO;
 import com.walmart.labs.exception.ExceptionFactory;
 import com.walmart.labs.exception.ExceptionType;
 import com.walmart.labs.repository.TaskRepository;
@@ -342,10 +343,40 @@ public class TaskService {
     taskDTO.setRecurring(task.isRecurring());
     taskDTO.setRecurringPeriodCronExpression(task.getRecurringPeriodCronExpression());
     taskDTO.setCorporationId(task.getCorporation().getId());
-    taskDTO.setAssignedStaffIdSet(
-        new HashSet<>(task.getStaffSet().stream().map(User::getId).collect(Collectors.toList())));
-    taskDTO.setManagerIdSet(
-        new HashSet<>(task.getManagerSet().stream().map(User::getId).collect(Collectors.toList())));
+
+    Set<Long> assignedStaffIdSet = new HashSet<>();
+    Set<UserDTO> assignedStaffUserDTOSet = new HashSet<>();
+    for (User staff: task.getStaffSet()) {
+      assignedStaffIdSet.add(staff.getId());
+      UserDTO assignedStaffUserDTO = new UserDTO();
+      assignedStaffUserDTOSet.add(assignedStaffUserDTO);
+      assignedStaffUserDTO.setUserId(staff.getId());
+      assignedStaffUserDTO.setCorporationId(staff.getCorporation().getId());
+      assignedStaffUserDTO.setFullName(staff.getFullName());
+      assignedStaffUserDTO.setUsername(staff.getUsername());
+      assignedStaffUserDTO.setEmailAddress(staff.getEmailAddress());
+      assignedStaffUserDTO.setEnabled(staff.isEnabled());
+      assignedStaffUserDTO.setDeleted(staff.isDeleted());
+    }
+    taskDTO.setAssignedStaffIdSet(assignedStaffIdSet);
+    taskDTO.setAssignedStaffUserDTOSet(assignedStaffUserDTOSet);
+
+    Set<Long> managerIdSet = new HashSet<>();
+    Set<UserDTO> managerUserDTOSet = new HashSet<>();
+    for (User manager: task.getManagerSet()) {
+      managerIdSet.add(manager.getId());
+      UserDTO managerUserDTO = new UserDTO();
+      managerUserDTOSet.add(managerUserDTO);
+      managerUserDTO.setUserId(manager.getId());
+      managerUserDTO.setCorporationId(manager.getCorporation().getId());
+      managerUserDTO.setFullName(manager.getFullName());
+      managerUserDTO.setUsername(manager.getUsername());
+      managerUserDTO.setEmailAddress(manager.getEmailAddress());
+      managerUserDTO.setEnabled(manager.isEnabled());
+      managerUserDTO.setDeleted(manager.isDeleted());
+    }
+    taskDTO.setManagerIdSet(managerIdSet);
+    taskDTO.setManagerUserDTOSet(managerUserDTOSet);
     return taskDTO;
   }
 

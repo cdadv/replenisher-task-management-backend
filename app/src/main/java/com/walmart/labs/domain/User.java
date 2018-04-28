@@ -40,6 +40,11 @@ public class User extends BasicDomain implements UserDetails {
 
   private String password;
 
+  private String fullName;
+
+  private String emailAddress;
+
+  // TODO: consider enabled and deleted properties in service logic
   private boolean enabled;
 
   private boolean deleted;
@@ -117,6 +122,22 @@ public class User extends BasicDomain implements UserDetails {
 
   public void setPassword(String password) {
     this.password = password;
+  }
+
+  public String getFullName() {
+    return fullName;
+  }
+
+  public void setFullName(String fullName) {
+    this.fullName = fullName;
+  }
+
+  public String getEmailAddress() {
+    return emailAddress;
+  }
+
+  public void setEmailAddress(String emailAddress) {
+    this.emailAddress = emailAddress;
   }
 
   public boolean isEnabled() {
