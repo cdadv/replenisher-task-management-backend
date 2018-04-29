@@ -118,7 +118,7 @@ public class TaskDTO {
     this.timeEstimatedFinish = timeEstimatedFinish;
   }
 
-  @JsonProperty(value="isRecurring")
+  @JsonProperty(value = "isRecurring")
   public boolean isRecurring() {
     return isRecurring;
   }
