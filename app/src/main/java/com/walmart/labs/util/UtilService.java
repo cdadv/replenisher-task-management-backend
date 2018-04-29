@@ -1,9 +1,11 @@
 package com.walmart.labs.util;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.scheduling.support.CronSequenceGenerator;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,5 +31,23 @@ public class UtilService {
     List<String> listOfStringType =
         setOfLongType.stream().map(Object::toString).collect(Collectors.toList());
     return String.join(",", listOfStringType);
+  }
+
+  public static class CronUtilService {
+    private CronSequenceGenerator generator;
+
+    public CronUtilService(String cronJobExpression) {
+      generator = new CronSequenceGenerator(cronJobExpression);
+    }
+
+    public Date calculateNextJobExecutionDate() {
+      return generator.next(new Date());
+    }
+
+    public long calculatePeriod() {
+      Date firstExecutionDate = generator.next(new Date());
+      Date secondExecutionDate = generator.next(firstExecutionDate);
+      return secondExecutionDate.getTime() - firstExecutionDate.getTime();
+    }
   }
 }

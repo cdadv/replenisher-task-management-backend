@@ -11,6 +11,7 @@ import com.walmart.labs.dto.TaskDTO;
 import com.walmart.labs.dto.TaskTemplateDTO;
 import com.walmart.labs.exception.ExceptionFactory;
 import com.walmart.labs.exception.ExceptionType;
+import com.walmart.labs.job.TimerJobManager;
 import com.walmart.labs.repository.CorporationRepository;
 import com.walmart.labs.repository.TaskRepository;
 import com.walmart.labs.repository.TaskTemplateRepository;
@@ -29,6 +30,7 @@ public class ValidationService {
   @Autowired private UserRepository userRepository;
   @Autowired private TaskRepository taskRepository;
   @Autowired private TaskTemplateRepository taskTemplateRepository;
+  @Autowired private TimerJobManager timerJobManager;
 
   public boolean validateTextField(String text) {
     // 65535 is the maximum length defined for domain property 'description', 'note', 'feedback' */
@@ -188,6 +190,7 @@ public class ValidationService {
       */
       // TODO: validate recurringPeriodCronExpression
       task.setRecurringPeriodCronExpression(recurringPeriodCronExpression);
+
     } else {
       task.setRecurring(false);
     }

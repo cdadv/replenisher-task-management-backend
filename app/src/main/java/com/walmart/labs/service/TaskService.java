@@ -19,7 +19,6 @@ import com.walmart.labs.repository.mapping.TaskManagerUserMappingRepository;
 import com.walmart.labs.repository.mapping.TaskStaffUserMappingRepository;
 import com.walmart.labs.util.ValidationService;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -40,6 +39,7 @@ public class TaskService {
   @Autowired private ValidationService validationService;
   @Autowired private TaskStaffUserMappingRepository taskStaffUserMappingRepository;
   @Autowired private TaskManagerUserMappingRepository taskManagerUserMappingRepository;
+  @Autowired private RecurringService recurringService;
 
   /**
    * Query all allowed task based on user's role. And extract all the information from Task to
@@ -131,12 +131,16 @@ public class TaskService {
   public void createTask(User user, TaskDTO taskDTO) {
     Task task = new Task();
     task = mapTaskDTOToTask(user, taskDTO, task);
-    createTask(task);
+    task = createTask(task);
     logger.info("Created a task successfully!");
+    if (task.isRecurring()) {
+      recurringService.createRecurringJob(user, task);
+      logger.info("Recurring job created successfully!");
+    }
   }
 
-  public void createTask(Task task) {
-    taskRepository.save(task);
+  public Task createTask(Task task) {
+    return taskRepository.save(task);
   }
 
   /**
@@ -159,15 +163,42 @@ public class TaskService {
   }
 
   public void updateTask(User user, TaskDTO taskDTO) {
+    boolean createRecurringJob = false;
+    boolean updateRecurringJob = false;
+    boolean deleteRecurringJob = false;
+
     Long taskId = taskDTO.getTaskId();
     Task task = validationService.validateTaskIdForUpdatingOrDeletingForAdmin(taskId, user);
+    boolean oldIsRecurring = task.isRecurring();
+    boolean newIsRecurring = taskDTO.isRecurring();
+    String oldCronExpression = task.getRecurringPeriodCronExpression();
+    String newCronExpression = taskDTO.getRecurringPeriodCronExpression();
+    if ((!oldIsRecurring) && newIsRecurring) {
+      createRecurringJob = true;
+    } else if (oldIsRecurring && newIsRecurring && !oldCronExpression.equals(newCronExpression)) {
+      updateRecurringJob = true;
+    } else if (oldIsRecurring && (!newIsRecurring)) {
+      deleteRecurringJob = true;
+    }
     task = mapTaskDTOToTask(user, taskDTO, task);
-    updateTask(task);
+    task = updateTask(task);
     logger.info("Updated a task successfully!");
+    if (createRecurringJob) {
+      recurringService.createRecurringJob(user, task);
+      logger.info("Recurring job created successfully!");
+    }
+    if (updateRecurringJob) {
+      recurringService.updateRecurringJob(user, task);
+      logger.info("Recurring job updated successfully!");
+    }
+    if (deleteRecurringJob) {
+      recurringService.daleteRecurringJob(user, task);
+      logger.info("Recurring job deleted successfully!");
+    }
   }
 
-  public void updateTask(Task task) {
-    taskRepository.save(task);
+  public Task updateTask(Task task) {
+    return taskRepository.save(task);
   }
 
   public void updateTaskTemplate(User user, TaskTemplateDTO taskTemplateDTO) {
@@ -204,6 +235,8 @@ public class TaskService {
               String.format("Detected invalid role for user: %s", role.getName()));
       }
     }
+    recurringService.daleteRecurringJob(user, task);
+    logger.info("Recurring job deleted successfully!");
     deleteTask(task);
     logger.info("Deleted a task successfully!");
   }

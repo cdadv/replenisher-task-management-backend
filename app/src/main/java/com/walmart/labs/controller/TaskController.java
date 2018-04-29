@@ -5,7 +5,6 @@ import com.walmart.labs.dto.ResponseDTO;
 import com.walmart.labs.dto.TaskDTO;
 import com.walmart.labs.dto.TaskTemplateDTO;
 import com.walmart.labs.service.TaskService;
-import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -56,7 +55,8 @@ public class TaskController {
       return responseEntity;
     }
     List<TaskDTO> taskDTOListSortedById = responseDTO.getResult();
-    List<TaskDTO> taskDTOListSortedByRank = taskService.sortTaskDTOListByRank(taskDTOListSortedById);
+    List<TaskDTO> taskDTOListSortedByRank =
+        taskService.sortTaskDTOListByRank(taskDTOListSortedById);
     responseDTO.setResult(taskDTOListSortedByRank);
     responseDTO.addMessage("Get task list sorted by rank");
     return new ResponseEntity<>(responseDTO, HttpStatus.OK);
