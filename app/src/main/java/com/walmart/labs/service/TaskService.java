@@ -131,16 +131,16 @@ public class TaskService {
   public void createTask(User user, TaskDTO taskDTO) {
     Task task = new Task();
     task = mapTaskDTOToTask(user, taskDTO, task);
-    task = createTask(task);
+    Task newTask = createTask(task);
     logger.info("Created a task successfully!");
-    if (task.isRecurring()) {
-      recurringService.createRecurringJob(user, task);
+    if (newTask.isRecurring()) {
+      recurringService.createRecurringJob(user, newTask);
       logger.info("Recurring job created successfully!");
     }
   }
 
   public Task createTask(Task task) {
-    return taskRepository.save(task);
+    return taskRepository.saveAndFlush(task);
   }
 
   /**
@@ -192,7 +192,7 @@ public class TaskService {
       logger.info("Recurring job updated successfully!");
     }
     if (deleteRecurringJob) {
-      recurringService.daleteRecurringJob(user, task);
+      recurringService.deleteRecurringJob(user, task);
       logger.info("Recurring job deleted successfully!");
     }
   }
@@ -235,7 +235,7 @@ public class TaskService {
               String.format("Detected invalid role for user: %s", role.getName()));
       }
     }
-    recurringService.daleteRecurringJob(user, task);
+    recurringService.deleteRecurringJob(user, task);
     logger.info("Recurring job deleted successfully!");
     deleteTask(task);
     logger.info("Deleted a task successfully!");

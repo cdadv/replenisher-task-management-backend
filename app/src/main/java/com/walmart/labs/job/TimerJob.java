@@ -8,17 +8,21 @@ import com.walmart.labs.service.TaskService;
 import java.util.Date;
 import java.util.TimerTask;
 import org.apache.commons.lang3.time.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 public class TimerJob extends TimerTask {
-  @Autowired private TaskService taskService;
+  private static final Logger logger = LoggerFactory.getLogger(TimerJob.class);
 
   private Task newTask;
+  private TaskService taskService;
 
-  public TimerJob(Task task) {
+  public TimerJob(Task task, TaskService taskService) {
     Task newTask = new Task();
-    BeanUtils.copyProperties(newTask, task);
     if (newTask.getManagerSet() == null
         || newTask.getManagerSet().isEmpty()
         || newTask.getStaffSet() == null
@@ -33,12 +37,25 @@ public class TimerJob extends TimerTask {
             newTask.getTimeInput(),
             toIntExact(task.getTimeEstimatedFinish().getTime() - task.getTimeInput().getTime()));
     newTask.setTimeEstimatedFinish(timeEstimatedFinish);
+    newTask.setName(task.getName());
+    newTask.setTaskPriority(task.getTaskPriority());
+    newTask.setTaskStatus(task.getTaskStatus());
+    newTask.setDescription(task.getDescription());
+    newTask.setFeedback(task.getFeedback());
+    newTask.setCorporation(task.getCorporation());
+    newTask.setNote(task.getNote());
+    newTask.setRecurring(task.isRecurring());
+    newTask.setRecurringPeriodCronExpression(task.getRecurringPeriodCronExpression());
+    newTask.setStaffSet(task.getStaffSet());
+    newTask.setManagerSet(task.getManagerSet());
     this.newTask = newTask;
+    this.taskService = taskService;
   }
 
   /** scheduled job will run periodically to create a task in based on */
   @Override
   public void run() {
+    logger.info("Recurring job is running");
     taskService.createTask(newTask);
   }
 }

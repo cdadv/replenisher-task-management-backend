@@ -12,21 +12,22 @@ import org.springframework.stereotype.Service;
 @Service
 public class RecurringService {
   @Autowired private TimerJobManager timerJobManager;
+  @Autowired private TaskService taskService;
 
   public void createRecurringJob(User user, Task task) {
     CronUtilService cronUtilService = new CronUtilService(task.getRecurringPeriodCronExpression());
     Date nextJobExecutionDate = cronUtilService.calculateNextJobExecutionDate();
     long period = cronUtilService.calculatePeriod();
-    TimerJob timerJob = new TimerJob(task);
+    TimerJob timerJob = new TimerJob(task, taskService);
     timerJobManager.startJob(timerJob, Long.toString(task.getId()), nextJobExecutionDate, period);
   }
 
   public void updateRecurringJob(User user, Task task) {
-    daleteRecurringJob(user, task);
+    deleteRecurringJob(user, task);
     createRecurringJob(user, task);
   }
 
-  public void daleteRecurringJob(User user, Task task) {
+  public void deleteRecurringJob(User user, Task task) {
     timerJobManager.stopJob(Long.toString(task.getId()));
   }
 }

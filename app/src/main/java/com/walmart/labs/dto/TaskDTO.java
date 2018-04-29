@@ -1,10 +1,10 @@
 package com.walmart.labs.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.walmart.labs.domain.Task;
 import java.util.Date;
 import java.util.Set;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * TaskDTO used for creating and editing task object
@@ -118,6 +118,7 @@ public class TaskDTO {
     this.timeEstimatedFinish = timeEstimatedFinish;
   }
 
+  @JsonProperty(value="isRecurring")
   public boolean isRecurring() {
     return isRecurring;
   }
