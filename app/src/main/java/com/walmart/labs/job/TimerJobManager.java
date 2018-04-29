@@ -74,7 +74,7 @@ public class TimerJobManager {
     } catch (Exception e) {
       throw ExceptionFactory.create(
           ExceptionType.RecurringTimeJobException,
-          String.format("Failed to start a job with (id) %s: ", jobId) + e.getLocalizedMessage());
+          String.format("Failed to stop a job with (id) %s: ", jobId) + e.getLocalizedMessage());
     }
   }
 

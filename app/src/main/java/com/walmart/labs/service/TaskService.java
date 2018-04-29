@@ -235,8 +235,10 @@ public class TaskService {
               String.format("Detected invalid role for user: %s", role.getName()));
       }
     }
-    recurringService.deleteRecurringJob(user, task);
-    logger.info("Recurring job deleted successfully!");
+    if (task.isRecurring()) {
+      recurringService.deleteRecurringJob(user, task);
+      logger.info("Recurring job deleted successfully!");
+    }
     deleteTask(task);
     logger.info("Deleted a task successfully!");
   }
