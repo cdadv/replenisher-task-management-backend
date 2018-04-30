@@ -194,8 +194,8 @@ public class InitialDataLoader implements ApplicationListener<ContextRefreshedEv
     userManager2.setUsername("manager_user_2");
     // TODO: encrypt the password
     userManager2.setPassword(new BCryptPasswordEncoder().encode("manager_password_2"));
-    userManager1.setFullName("manager2");
-    userManager1.setEmailAddress("manager2@manager2.com");
+    userManager2.setFullName("manager2");
+    userManager2.setEmailAddress("manager2@manager2.com");
     userManager2.setCorporation(corporationDemo);
     userManager2.setAllowedRoleSet(new HashSet<>(Arrays.asList(roleUserManager)));
     userManager2.setEnabled(true);
