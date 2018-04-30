@@ -175,29 +175,26 @@ public class TaskController {
   }
 
   /**
-   * Create task template based on TaskDTO! This endpoint is mainly used for frontend to create task
-   * template in the task creation page. This endpoint needs user fill out all the information for
-   * creating a 'Task'. the service will extract information from taskDTO and save them as
-   * TaskTemplate
+   * Create task template based on TaskTemplateDTO.
    *
    * <p>Request URL: /task/template
    *
    * <p>Request Method: POST
    *
-   * @param taskDTO taskDTO contains redundant information such as TackStatus, feedback. But
-   *     contains every fields in TaskTemplate. So we can reuse this to receive request from
-   *     frontend.
+   * @param taskTemplateDTO taskTemplateDTO which contains recurring information will help to create
+   *     recurring job in the backend for creating templates periodically.
    * @return Empty result with success/fail messages.
    */
   @RequestMapping(value = "/task/template", method = RequestMethod.POST)
-  public ResponseEntity<ResponseDTO<Void>> createTaskTemplate(@RequestBody TaskDTO taskDTO) {
+  public ResponseEntity<ResponseDTO<Void>> createTaskTemplate(
+      @RequestBody TaskTemplateDTO taskTemplateDTO) {
     ResponseDTO<Void> responseDTO = new ResponseDTO<>();
 
     OAuth2Authentication authentication =
         (OAuth2Authentication) SecurityContextHolder.getContext().getAuthentication();
     User user = (User) authentication.getPrincipal();
 
-    taskService.createTaskTemplate(user, taskDTO);
+    taskService.createTaskTemplate(user, taskTemplateDTO);
     responseDTO.addMessage("Created a task template successfully!");
     responseDTO.setSuccess(true);
     return new ResponseEntity<>(responseDTO, HttpStatus.OK);

@@ -1,8 +1,8 @@
 package com.walmart.labs.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Set;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 public class TaskTemplateDTO {
   private Long taskTemplateId;
@@ -20,7 +20,8 @@ public class TaskTemplateDTO {
   private Set<Long> managerIdSet;
 
   // following two fields will be ignored during deserialization
-  @JsonIgnore private Set<UserDTO> assignedStaffUserDTOSet;
+  @JsonIgnore
+  private Set<UserDTO> assignedStaffUserDTOSet;
   @JsonIgnore private Set<UserDTO> managerUserDTOSet;
 
   public Long getTaskTemplateId() {
@@ -71,6 +72,7 @@ public class TaskTemplateDTO {
     this.estimatedDuration = estimatedDuration;
   }
 
+  @JsonProperty(value = "isRecurring")
   public boolean isRecurring() {
     return isRecurring;
   }

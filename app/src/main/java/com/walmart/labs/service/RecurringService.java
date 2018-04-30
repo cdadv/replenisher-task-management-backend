@@ -1,6 +1,6 @@
 package com.walmart.labs.service;
 
-import com.walmart.labs.domain.Task;
+import com.walmart.labs.domain.TaskTemplate;
 import com.walmart.labs.domain.User;
 import com.walmart.labs.job.TimerJob;
 import com.walmart.labs.job.TimerJobManager;
@@ -15,20 +15,21 @@ public class RecurringService {
   @Autowired private TaskService taskService;
   @Autowired private CronJobService cronJobService;
 
-  public void createRecurringJob(User user, Task task) {
-    cronJobService.init(task);
-    Date nextJobExecutionDate = cronJobService.calculateNextJobExecutionDate(task.getId());
-    long period = cronJobService.calculatePeriod(task.getId());
-    TimerJob timerJob = new TimerJob(task, taskService);
-    timerJobManager.startJob(timerJob, Long.toString(task.getId()), nextJobExecutionDate, period);
+  public void createRecurringJob(User user, TaskTemplate taskTemplate) {
+    cronJobService.init(taskTemplate);
+    Date nextJobExecutionDate = cronJobService.calculateNextJobExecutionDate(taskTemplate.getId());
+    long period = cronJobService.calculatePeriod(taskTemplate.getId());
+    TimerJob timerJob = new TimerJob(taskTemplate, taskService);
+    timerJobManager.startJob(
+        timerJob, Long.toString(taskTemplate.getId()), nextJobExecutionDate, period);
   }
 
-  public void updateRecurringJob(User user, Task task) {
-    deleteRecurringJob(user, task);
-    createRecurringJob(user, task);
+  public void updateRecurringJob(User user, TaskTemplate taskTemplatek) {
+    deleteRecurringJob(user, taskTemplatek);
+    createRecurringJob(user, taskTemplatek);
   }
 
-  public void deleteRecurringJob(User user, Task task) {
-    timerJobManager.stopJob(Long.toString(task.getId()));
+  public void deleteRecurringJob(User user, TaskTemplate taskTemplate) {
+    timerJobManager.stopJob(Long.toString(taskTemplate.getId()));
   }
 }

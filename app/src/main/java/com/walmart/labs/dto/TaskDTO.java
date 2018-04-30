@@ -31,10 +31,6 @@ public class TaskDTO {
   private Date timeInput;
   // required field for creating
   private Date timeEstimatedFinish;
-  // optional field for creating
-  private boolean isRecurring;
-  // optional field for creating
-  private String recurringPeriodCronExpression;
   // required field for creating
   private Long corporationId;
   // required field for creating
@@ -116,23 +112,6 @@ public class TaskDTO {
 
   public void setTimeEstimatedFinish(Date timeEstimatedFinish) {
     this.timeEstimatedFinish = timeEstimatedFinish;
-  }
-
-  @JsonProperty(value = "isRecurring")
-  public boolean isRecurring() {
-    return isRecurring;
-  }
-
-  public void setRecurring(boolean recurring) {
-    isRecurring = recurring;
-  }
-
-  public String getRecurringPeriodCronExpression() {
-    return recurringPeriodCronExpression;
-  }
-
-  public void setRecurringPeriodCronExpression(String recurringPeriodCronExpression) {
-    this.recurringPeriodCronExpression = recurringPeriodCronExpression;
   }
 
   public Long getCorporationId() {
