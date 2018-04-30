@@ -1,475 +1,531 @@
 {
-  "info": {
-    "_postman_id": "80bb3f12-88f9-457e-afe5-1e336b327661",
-    "name": "walmart-coding-challenge",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "item": [
-    {
-      "name": "getTaskList (admin)",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": ""
-        },
-        "url": {
-          "raw": "localhost:8080/task?access_token=02e15a20-0567-4965-b94a-4f26bbba9e5c",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "task"
-          ],
-          "query": [
-            {
-              "key": "access_token",
-              "value": "02e15a20-0567-4965-b94a-4f26bbba9e5c"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "getTaskTemplateList (admin)",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": ""
-        },
-        "url": {
-          "raw": "localhost:8080/task/template?access_token=fe4d3900-c5aa-4797-bfef-a29563df453d",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "task",
-            "template"
-          ],
-          "query": [
-            {
-              "key": "access_token",
-              "value": "fe4d3900-c5aa-4797-bfef-a29563df453d"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "getTaskList (staff)",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": ""
-        },
-        "url": {
-          "raw": "localhost:8080/task?access_token=598d2d4f-b62b-4ea5-b92e-97d7769c34af",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "task"
-          ],
-          "query": [
-            {
-              "key": "access_token",
-              "value": "598d2d4f-b62b-4ea5-b92e-97d7769c34af"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "createTask1",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n\t\"name\": \"task_cleaning_bathroom\",\n\t\"taskStatusString\": \"CREATED\",\n\t\"taskPriorityString\": \"MEDIUM\",\n\t\"description\": \"\",\n\t\"note\": \"Anne needs to clean the bathroom.\",\n\t\"feedback\": \"bathroom is not clean enough.\",\n\t\"timeInput\": 1523957223008,\n\t\"timeEstimatedFinish\": 1523958223008,\n\t\"isRecurring\": false,\n\t\"recurringPeriodCronExpression\": \"will be ignored\",\n\t\"corporationId\": 1,\n\t\"assignedStaffIdSet\": [2, 3],\n\t\"managerIdSet\": [5]\n}"
-        },
-        "url": {
-          "raw": "localhost:8080/task?access_token=02e15a20-0567-4965-b94a-4f26bbba9e5c",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "task"
-          ],
-          "query": [
-            {
-              "key": "access_token",
-              "value": "02e15a20-0567-4965-b94a-4f26bbba9e5c"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "createTask2",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n\t\"name\": \"task_cook_egg\",\n\t\"taskStatusString\": \"CREATED\",\n\t\"taskPriorityString\": \"HIGH\",\n\t\"description\": \"\",\n\t\"note\": \"Anne needs to cook some eggs.\",\n\t\"feedback\": \"eggs are good.\",\n\t\"timeInput\": 1523957223008,\n\t\"timeEstimatedFinish\": 1523958223008,\n\t\"isRecurring\": false,\n\t\"recurringPeriodCronExpression\": \"will be ignored\",\n\t\"corporationId\": 1,\n\t\"assignedStaffIdSet\": [4],\n\t\"managerIdSet\": [6]\n}"
-        },
-        "url": {
-          "raw": "localhost:8080/task?access_token=02e15a20-0567-4965-b94a-4f26bbba9e5c",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "task"
-          ],
-          "query": [
-            {
-              "key": "access_token",
-              "value": "02e15a20-0567-4965-b94a-4f26bbba9e5c"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "createTaskTemplate1",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n\t\"name\": \"task_cleaning_bathroom\",\n\t\"taskStatusString\": \"CREATED\",\n\t\"taskPriorityString\": \"MEDIUM\",\n\t\"description\": \"\",\n\t\"note\": \"Anne needs to clean the bathroom.\",\n\t\"feedback\": \"bathroom is not clean enough.\",\n\t\"timeInput\": 1523957223008,\n\t\"timeEstimatedFinish\": 1523958223008,\n\t\"isRecurring\": false,\n\t\"recurringPeriodCronExpression\": \"will be ignored\",\n\t\"corporationId\": 1,\n\t\"assignedStaffIdSet\": [2, 3],\n\t\"managerIdSet\": [5]\n}"
-        },
-        "url": {
-          "raw": "localhost:8080/task/template?access_token=fe4d3900-c5aa-4797-bfef-a29563df453d",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "task",
-            "template"
-          ],
-          "query": [
-            {
-              "key": "access_token",
-              "value": "fe4d3900-c5aa-4797-bfef-a29563df453d"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "updateTask1",
-      "request": {
-        "method": "PUT",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n\t\"taskId\": 2,\n\t\"name\": \"task_cleaning_bathroom\",\n\t\"taskStatusString\": \"FINISHED\",\n\t\"taskPriorityString\": \"MEDIUM\",\n\t\"description\": \"\",\n\t\"note\": \"Anne needs to clean the bathroom.\",\n\t\"feedback\": \"bathroom is not clean enough.\",\n\t\"timeInput\": 1523957223008,\n\t\"timeEstimatedFinish\": 1523958223008,\n\t\"isRecurring\": false,\n\t\"recurringPeriodCronExpression\": \"will be ignored\",\n\t\"corporationId\": 1,\n\t\"assignedStaffIdSet\": [2, 3, 4],\n\t\"managerIdSet\": [6]\n}"
-        },
-        "url": {
-          "raw": "localhost:8080/task?access_token=765d20b7-9235-47c9-872b-274b4f1ecc9e",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "task"
-          ],
-          "query": [
-            {
-              "key": "access_token",
-              "value": "765d20b7-9235-47c9-872b-274b4f1ecc9e"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "updateTaskTemplate1",
-      "request": {
-        "method": "PUT",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n\t\"taskTemplateId\": 1,\n\t\"name\": \"task_cleaning_bathroom\",\n\t\"taskPriorityString\": \"HIGH\",\n\t\"description\": \"\",\n\t\"note\": \"Anne needs to clean the bathroom.\",\n\t\"feedback\": \"bathroom is not clean enough.\",\n\t\"estimatedDuration\": 123456789,\n\t\"isRecurring\": false,\n\t\"recurringPeriodCronExpression\": \"will be ignored\",\n\t\"corporationId\": 1,\n\t\"assignedStaffIdSet\": [2],\n\t\"managerIdSet\": [5, 6]\n}"
-        },
-        "url": {
-          "raw": "localhost:8080/task/template?access_token=dfc6dbfb-84d2-42a5-9fb9-a903e84986bd",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "task",
-            "template"
-          ],
-          "query": [
-            {
-              "key": "access_token",
-              "value": "dfc6dbfb-84d2-42a5-9fb9-a903e84986bd"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "deleteTask1",
-      "request": {
-        "method": "DELETE",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": ""
-        },
-        "url": {
-          "raw": "localhost:8080/task?access_token=41d4d25e-15e1-4e10-9433-63a9c21692af&taskId=1",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "task"
-          ],
-          "query": [
-            {
-              "key": "access_token",
-              "value": "41d4d25e-15e1-4e10-9433-63a9c21692af"
-            },
-            {
-              "key": "taskId",
-              "value": "1"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "deleteTaskTemplate1",
-      "request": {
-        "method": "DELETE",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": ""
-        },
-        "url": {
-          "raw": "localhost:8080/task/template?access_token=dfc6dbfb-84d2-42a5-9fb9-a903e84986bd&taskTemplateId=1",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "task",
-            "template"
-          ],
-          "query": [
-            {
-              "key": "access_token",
-              "value": "dfc6dbfb-84d2-42a5-9fb9-a903e84986bd"
-            },
-            {
-              "key": "taskTemplateId",
-              "value": "1"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "access_token (admin log in)",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": ""
-        },
-        "url": {
-          "raw": "localhost:8080/oauth/token?grant_type=password&username=admin_user&client_id=clientId&client_secret=clientSecret&password=admin_password&scope=select",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "oauth",
-            "token"
-          ],
-          "query": [
-            {
-              "key": "grant_type",
-              "value": "password"
-            },
-            {
-              "key": "username",
-              "value": "admin_user"
-            },
-            {
-              "key": "client_id",
-              "value": "clientId"
-            },
-            {
-              "key": "client_secret",
-              "value": "clientSecret"
-            },
-            {
-              "key": "password",
-              "value": "admin_password"
-            },
-            {
-              "key": "scope",
-              "value": "select"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "access_token (staff log in)",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": ""
-        },
-        "url": {
-          "raw": "localhost:8080/oauth/token?grant_type=password&username=staff_user_1&client_id=clientId&client_secret=clientSecret&password=staff_password_1&scope=select",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "oauth",
-            "token"
-          ],
-          "query": [
-            {
-              "key": "grant_type",
-              "value": "password"
-            },
-            {
-              "key": "username",
-              "value": "staff_user_1"
-            },
-            {
-              "key": "client_id",
-              "value": "clientId"
-            },
-            {
-              "key": "client_secret",
-              "value": "clientSecret"
-            },
-            {
-              "key": "password",
-              "value": "staff_password_1"
-            },
-            {
-              "key": "scope",
-              "value": "select"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "refresh_token",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": ""
-        },
-        "url": {
-          "raw": "localhost:8080/oauth/token?grant_type=refresh_token&refresh_token=5640b619-2dd6-4886-8cfe-667069ded9d2&client_id=clientId&client_secret=clientSecret",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "oauth",
-            "token"
-          ],
-          "query": [
-            {
-              "key": "grant_type",
-              "value": "refresh_token"
-            },
-            {
-              "key": "refresh_token",
-              "value": "5640b619-2dd6-4886-8cfe-667069ded9d2"
-            },
-            {
-              "key": "client_id",
-              "value": "clientId"
-            },
-            {
-              "key": "client_secret",
-              "value": "clientSecret"
-            }
-          ]
-        }
-      },
-      "response": []
-    }
-  ]
+	"info": {
+		"_postman_id": "80bb3f12-88f9-457e-afe5-1e336b327661",
+		"name": "walmart-coding-challenge",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "getTaskList (admin)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8181/task?access_token=b79d6e24-576b-48f1-9830-800d0740a6bc",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"task"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "b79d6e24-576b-48f1-9830-800d0740a6bc"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getTaskTemplateList (admin)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8181/task/template?access_token=fe4d3900-c5aa-4797-bfef-a29563df453d",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"task",
+						"template"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "fe4d3900-c5aa-4797-bfef-a29563df453d"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getTaskList (staff)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8181/task?access_token=598d2d4f-b62b-4ea5-b92e-97d7769c34af",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"task"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "598d2d4f-b62b-4ea5-b92e-97d7769c34af"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getTaskListSortedByRank",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "localhost:8181/task/sort/rank?access_token=b79d6e24-576b-48f1-9830-800d0740a6bc",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"task",
+						"sort",
+						"rank"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "b79d6e24-576b-48f1-9830-800d0740a6bc"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createTask1",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"task_cleaning_bathroom\",\n\t\"taskStatusString\": \"CREATED\",\n\t\"taskPriorityString\": \"LOW\",\n\t\"description\": \"\",\n\t\"note\": \"Anne needs to clean the bathroom.\",\n\t\"feedback\": \"bathroom is not clean enough.\",\n\t\"timeInput\": 1523957223008,\n\t\"timeEstimatedFinish\": 1662358223008,\n\t\"isRecurring\": false,\n\t\"recurringPeriodCronExpression\": \"will be ignored\",\n\t\"corporationId\": 1,\n\t\"assignedStaffIdSet\": [2, 3],\n\t\"managerIdSet\": [5]\n}"
+				},
+				"url": {
+					"raw": "localhost:8181/task?access_token=b79d6e24-576b-48f1-9830-800d0740a6bc",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"task"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "b79d6e24-576b-48f1-9830-800d0740a6bc"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createTask2",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"task_cook_vegetable\",\n\t\"taskStatusString\": \"CREATED\",\n\t\"taskPriorityString\": \"LOW\",\n\t\"description\": \"\",\n\t\"note\": \"Anne needs to cook some vegetable.\",\n\t\"feedback\": \"vegetables are good.\",\n\t\"timeInput\": 1523957223008,\n\t\"timeEstimatedFinish\": 2025959223008,\n\t\"isRecurring\": false,\n\t\"recurringPeriodCronExpression\": \"will be ignored\",\n\t\"corporationId\": 1,\n\t\"assignedStaffIdSet\": [4],\n\t\"managerIdSet\": [6]\n}"
+				},
+				"url": {
+					"raw": "localhost:8181/task?access_token=b79d6e24-576b-48f1-9830-800d0740a6bc",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"task"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "b79d6e24-576b-48f1-9830-800d0740a6bc"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createTaskTemplate1",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"task_cleaning_bathroom\",\n\t\"taskStatusString\": \"CREATED\",\n\t\"taskPriorityString\": \"MEDIUM\",\n\t\"description\": \"\",\n\t\"note\": \"Anne needs to clean the bathroom.\",\n\t\"feedback\": \"bathroom is not clean enough.\",\n\t\"timeInput\": 1523957223008,\n\t\"timeEstimatedFinish\": 1523958223008,\n\t\"isRecurring\": false,\n\t\"recurringPeriodCronExpression\": \"will be ignored\",\n\t\"corporationId\": 1,\n\t\"assignedStaffIdSet\": [2, 3],\n\t\"managerIdSet\": [5]\n}"
+				},
+				"url": {
+					"raw": "localhost:8181/task/template?access_token=fe4d3900-c5aa-4797-bfef-a29563df453d",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"task",
+						"template"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "fe4d3900-c5aa-4797-bfef-a29563df453d"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateTask1",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"taskId\": 2,\n\t\"name\": \"task_cleaning_bathroom\",\n\t\"taskStatusString\": \"FINISHED\",\n\t\"taskPriorityString\": \"MEDIUM\",\n\t\"description\": \"\",\n\t\"note\": \"Anne needs to clean the bathroom.\",\n\t\"feedback\": \"bathroom is not clean enough.\",\n\t\"timeInput\": 1523957223008,\n\t\"timeEstimatedFinish\": 1523958223008,\n\t\"isRecurring\": false,\n\t\"recurringPeriodCronExpression\": \"will be ignored\",\n\t\"corporationId\": 1,\n\t\"assignedStaffIdSet\": [2, 3, 4],\n\t\"managerIdSet\": [6]\n}"
+				},
+				"url": {
+					"raw": "localhost:8181/task?access_token=765d20b7-9235-47c9-872b-274b4f1ecc9e",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"task"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "765d20b7-9235-47c9-872b-274b4f1ecc9e"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateTaskTemplate1",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"taskTemplateId\": 1,\n\t\"name\": \"task_cleaning_bathroom\",\n\t\"taskPriorityString\": \"HIGH\",\n\t\"description\": \"\",\n\t\"note\": \"Anne needs to clean the bathroom.\",\n\t\"feedback\": \"bathroom is not clean enough.\",\n\t\"estimatedDuration\": 123456789,\n\t\"isRecurring\": false,\n\t\"recurringPeriodCronExpression\": \"will be ignored\",\n\t\"corporationId\": 1,\n\t\"assignedStaffIdSet\": [2],\n\t\"managerIdSet\": [5, 6]\n}"
+				},
+				"url": {
+					"raw": "localhost:8181/task/template?access_token=dfc6dbfb-84d2-42a5-9fb9-a903e84986bd",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"task",
+						"template"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "dfc6dbfb-84d2-42a5-9fb9-a903e84986bd"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteTask1",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8181/task?access_token=41d4d25e-15e1-4e10-9433-63a9c21692af&taskId=1",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"task"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "41d4d25e-15e1-4e10-9433-63a9c21692af"
+						},
+						{
+							"key": "taskId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteTaskTemplate1",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8181/task/template?access_token=dfc6dbfb-84d2-42a5-9fb9-a903e84986bd&taskTemplateId=1",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"task",
+						"template"
+					],
+					"query": [
+						{
+							"key": "access_token",
+							"value": "dfc6dbfb-84d2-42a5-9fb9-a903e84986bd"
+						},
+						{
+							"key": "taskTemplateId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "access_token (admin log in)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8181/oauth/token?grant_type=password&username=admin_user&client_id=clientId&client_secret=clientSecret&password=admin_password&scope=select",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"oauth",
+						"token"
+					],
+					"query": [
+						{
+							"key": "grant_type",
+							"value": "password"
+						},
+						{
+							"key": "username",
+							"value": "admin_user"
+						},
+						{
+							"key": "client_id",
+							"value": "clientId"
+						},
+						{
+							"key": "client_secret",
+							"value": "clientSecret"
+						},
+						{
+							"key": "password",
+							"value": "admin_password"
+						},
+						{
+							"key": "scope",
+							"value": "select"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "access_token (staff log in)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8181/oauth/token?grant_type=password&username=staff_user_1&client_id=clientId&client_secret=clientSecret&password=staff_password_1&scope=select",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"oauth",
+						"token"
+					],
+					"query": [
+						{
+							"key": "grant_type",
+							"value": "password"
+						},
+						{
+							"key": "username",
+							"value": "staff_user_1"
+						},
+						{
+							"key": "client_id",
+							"value": "clientId"
+						},
+						{
+							"key": "client_secret",
+							"value": "clientSecret"
+						},
+						{
+							"key": "password",
+							"value": "staff_password_1"
+						},
+						{
+							"key": "scope",
+							"value": "select"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "check_token",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8181/oauth/check_token?token=f2ac504b-ee9b-446d-adbc-8c9e7a862fd6",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"oauth",
+						"check_token"
+					],
+					"query": [
+						{
+							"key": "token",
+							"value": "f2ac504b-ee9b-446d-adbc-8c9e7a862fd6"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "refresh_token",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8181/oauth/token?grant_type=refresh_token&refresh_token=5640b619-2dd6-4886-8cfe-667069ded9d2&client_id=clientId&client_secret=clientSecret",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"oauth",
+						"token"
+					],
+					"query": [
+						{
+							"key": "grant_type",
+							"value": "refresh_token"
+						},
+						{
+							"key": "refresh_token",
+							"value": "5640b619-2dd6-4886-8cfe-667069ded9d2"
+						},
+						{
+							"key": "client_id",
+							"value": "clientId"
+						},
+						{
+							"key": "client_secret",
+							"value": "clientSecret"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
 }
