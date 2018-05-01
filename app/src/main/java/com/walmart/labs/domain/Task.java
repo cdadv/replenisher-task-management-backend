@@ -60,16 +60,6 @@ public class Task extends BasicDomain {
    */
   private Date timeEstimatedFinish;
 
-  /** boolean value to represent if the task is a recurring task */
-  private boolean isRecurring;
-  /**
-   * if the boolean value above is true. This field is for defining the recurring periods with cron
-   * job expression.
-   *
-   * <p>TODO: may change to use enum class with WEEKLY, MONTHLY, etc expressions.
-   */
-  private String recurringPeriodCronExpression;
-
   @OneToOne private Corporation corporation;
 
   /** List of staff that are assigned to this task */
@@ -154,22 +144,6 @@ public class Task extends BasicDomain {
 
   public void setTimeEstimatedFinish(Date timeEstimatedFinish) {
     this.timeEstimatedFinish = timeEstimatedFinish;
-  }
-
-  public boolean isRecurring() {
-    return isRecurring;
-  }
-
-  public void setRecurring(boolean recurring) {
-    isRecurring = recurring;
-  }
-
-  public String getRecurringPeriodCronExpression() {
-    return recurringPeriodCronExpression;
-  }
-
-  public void setRecurringPeriodCronExpression(String recurringPeriodCronExpression) {
-    this.recurringPeriodCronExpression = recurringPeriodCronExpression;
   }
 
   public Corporation getCorporation() {

@@ -35,8 +35,15 @@ public class TaskTemplate extends BasicDomain {
   /** Frontend can use duration to calculate the estimated finishing date */
   private long estimatedDuration;
 
+  /** boolean value to represent if the task is a recurring task */
   private boolean isRecurring;
 
+  /**
+   * if the boolean value above is true. This field is for defining the recurring periods with cron
+   * job expression.
+   *
+   * <p>TODO: may change to use enum class with WEEKLY, MONTHLY, etc expressions.
+   */
   private String recurringPeriodCronExpression;
 
   @OneToOne private Corporation corporation;

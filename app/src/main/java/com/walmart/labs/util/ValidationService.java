@@ -179,23 +179,6 @@ public class ValidationService {
     }
   }
 
-  public void validateTaskIsrecurringAndTaskRecurringPeriodCronExpressionAndSetForAdmin(
-      boolean isRecurring, String recurringPeriodCronExpression, Task task) {
-    if (isRecurring) {
-      task.setRecurring(true);
-      /*
-       OPTIONAL field for task
-
-       9. if the task is a recurring task, this field will be used for storing the period of the recurring.
-      */
-      // TODO: validate recurringPeriodCronExpression
-      task.setRecurringPeriodCronExpression(recurringPeriodCronExpression);
-
-    } else {
-      task.setRecurring(false);
-    }
-  }
-
   /*
   1. check when editing a task (corporation is not null), manager/staff should not be allowed to update the old task with a different corporation.
   2. check if corporationId is null

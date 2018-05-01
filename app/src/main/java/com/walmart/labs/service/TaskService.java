@@ -1,8 +1,11 @@
 package com.walmart.labs.service;
 
+import static java.lang.Math.toIntExact;
+
 import com.walmart.labs.comparator.SortByRankComparator;
 import com.walmart.labs.domain.Corporation;
 import com.walmart.labs.domain.Task;
+import com.walmart.labs.domain.TaskStatus;
 import com.walmart.labs.domain.TaskTemplate;
 import com.walmart.labs.domain.User;
 import com.walmart.labs.domain.UserRole;
@@ -23,6 +26,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,10 +137,6 @@ public class TaskService {
     task = mapTaskDTOToTask(user, taskDTO, task);
     Task newTask = createTask(task);
     logger.info("Created a task successfully!");
-    if (newTask.isRecurring()) {
-      recurringService.createRecurringJob(user, newTask);
-      logger.info("Recurring job created successfully!");
-    }
   }
 
   public Task createTask(Task task) {
@@ -144,57 +144,40 @@ public class TaskService {
   }
 
   /**
-   * Extract all the information from TaskDTO to Task first and map Task to TaskTemplate, then save.
+   * Extract all the information from TaskTemplateDTO to TaskTemplate, then save.
    *
    * @param user
-   * @param taskDTO
+   * @param taskTemplateDTO
    */
-  public void createTaskTemplate(User user, TaskDTO taskDTO) {
-    Task task = new Task();
-    task = mapTaskDTOToTask(user, taskDTO, task);
+  public void createTaskTemplate(User user, TaskTemplateDTO taskTemplateDTO) {
     TaskTemplate taskTemplate = new TaskTemplate();
-    taskTemplate = mapTaskToTaskTemplate(task, taskTemplate);
-    createTaskTemplate(taskTemplate);
+    taskTemplate = mapTaskTemplateDTOToTaskTemplate(user, taskTemplateDTO, taskTemplate);
+    TaskTemplate newTaskTemplate = createTaskTemplate(taskTemplate);
     logger.info("Created a task template successfully!");
+    if (newTaskTemplate.isRecurring()) {
+      recurringService.createRecurringJob(user, newTaskTemplate);
+      logger.info("Recurring job created successfully!");
+    }
   }
 
-  public void createTaskTemplate(TaskTemplate taskTemplate) {
-    taskTemplateRepository.save(taskTemplate);
+  public TaskTemplate createTaskTemplate(TaskTemplate taskTemplate) {
+    return taskTemplateRepository.saveAndFlush(taskTemplate);
+  }
+
+  public void createTaskFromTaskTemplate(TaskTemplate taskTemplate) {
+    Task task = new Task();
+    task = mapTaskTemplateToTask(taskTemplate, task);
+    Task newTask = createTask(task);
+    logger.info("Created a task from task template successfully!");
   }
 
   public void updateTask(User user, TaskDTO taskDTO) {
-    boolean createRecurringJob = false;
-    boolean updateRecurringJob = false;
-    boolean deleteRecurringJob = false;
-
     Long taskId = taskDTO.getTaskId();
     Task task = validationService.validateTaskIdForUpdatingOrDeletingForAdmin(taskId, user);
-    boolean oldIsRecurring = task.isRecurring();
-    boolean newIsRecurring = taskDTO.isRecurring();
-    String oldCronExpression = task.getRecurringPeriodCronExpression();
-    String newCronExpression = taskDTO.getRecurringPeriodCronExpression();
-    if ((!oldIsRecurring) && newIsRecurring) {
-      createRecurringJob = true;
-    } else if (oldIsRecurring && newIsRecurring && !oldCronExpression.equals(newCronExpression)) {
-      updateRecurringJob = true;
-    } else if (oldIsRecurring && (!newIsRecurring)) {
-      deleteRecurringJob = true;
-    }
+
     task = mapTaskDTOToTask(user, taskDTO, task);
     task = updateTask(task);
     logger.info("Updated a task successfully!");
-    if (createRecurringJob) {
-      recurringService.createRecurringJob(user, task);
-      logger.info("Recurring job created successfully!");
-    }
-    if (updateRecurringJob) {
-      recurringService.updateRecurringJob(user, task);
-      logger.info("Recurring job updated successfully!");
-    }
-    if (deleteRecurringJob) {
-      recurringService.deleteRecurringJob(user, task);
-      logger.info("Recurring job deleted successfully!");
-    }
   }
 
   public Task updateTask(Task task) {
@@ -202,12 +185,42 @@ public class TaskService {
   }
 
   public void updateTaskTemplate(User user, TaskTemplateDTO taskTemplateDTO) {
+    boolean createRecurringJob = false;
+    boolean updateRecurringJob = false;
+    boolean deleteRecurringJob = false;
+
     Long taskTemplateId = taskTemplateDTO.getTaskTemplateId();
     TaskTemplate taskTemplate =
         validationService.validateTaskTemplateIdForUpdatingOrDeletingForAdmin(taskTemplateId, user);
+
+    boolean oldIsRecurring = taskTemplate.isRecurring();
+    boolean newIsRecurring = taskTemplateDTO.isRecurring();
+    String oldCronExpression = taskTemplate.getRecurringPeriodCronExpression();
+    String newCronExpression = taskTemplateDTO.getRecurringPeriodCronExpression();
+    if ((!oldIsRecurring) && newIsRecurring) {
+      createRecurringJob = true;
+    } else if (oldIsRecurring && newIsRecurring && !oldCronExpression.equals(newCronExpression)) {
+      updateRecurringJob = true;
+    } else if (oldIsRecurring && (!newIsRecurring)) {
+      deleteRecurringJob = true;
+    }
+
     taskTemplate = mapTaskTemplateDTOToTaskTemplate(user, taskTemplateDTO, taskTemplate);
     updateTaskTemplate(taskTemplate);
     logger.info("Updated a task template successfully!");
+
+    if (createRecurringJob) {
+      recurringService.createRecurringJob(user, taskTemplate);
+      logger.info("Recurring job created successfully!");
+    }
+    if (updateRecurringJob) {
+      recurringService.updateRecurringJob(user, taskTemplate);
+      logger.info("Recurring job updated successfully!");
+    }
+    if (deleteRecurringJob) {
+      recurringService.deleteRecurringJob(user, taskTemplate);
+      logger.info("Recurring job deleted successfully!");
+    }
   }
 
   public void updateTaskTemplate(TaskTemplate taskTemplate) {
@@ -234,10 +247,6 @@ public class TaskService {
               ExceptionType.IllegalRequestBodyFieldsException,
               String.format("Detected invalid role for user: %s", role.getName()));
       }
-    }
-    if (task.isRecurring()) {
-      recurringService.deleteRecurringJob(user, task);
-      logger.info("Recurring job deleted successfully!");
     }
     deleteTask(task);
     logger.info("Deleted a task successfully!");
@@ -273,6 +282,10 @@ public class TaskService {
               String.format("Detected invalid role for user: %s", role.getName()));
       }
     }
+    if (taskTemplate.isRecurring()) {
+      recurringService.deleteRecurringJob(user, taskTemplate);
+      logger.info("Recurring job deleted successfully!");
+    }
     deleteTaskTemplate(taskTemplate);
     logger.info("Deleted a task template successfully!");
   }
@@ -284,6 +297,299 @@ public class TaskService {
   public List<TaskDTO> sortTaskDTOListByRank(List<TaskDTO> taskDTOListSortedById) {
     taskDTOListSortedById.sort(new SortByRankComparator());
     return taskDTOListSortedById;
+  }
+
+  /*
+  private map methods:
+  1. TaskDTO -> Task
+  2. Task -> TaskDTO
+  3. TaskTemplate -> TaskTemplateDTO
+  4. TaskTemplateDTO -> TaskTemplate
+  5. List<Task> -> List<TaskDTO>
+  6. List<TaskTemplate> -> List<TaskTemplateDTO>
+  7. Task -> TaskTemplate
+  8. TaskTemplate -> Task
+   */
+
+  private Task mapTaskDTOToTask(User currentUser, TaskDTO taskDTO, Task task) {
+    if (task == null) {
+      task = new Task();
+    }
+
+    Set<UserRole> allowedRoleSet = currentUser.getAllowedRoleSet();
+    String name = null;
+    String taskStatusString = null;
+    String taskPriorityString = null;
+    String description = null;
+    String note = null;
+    String feedback = null;
+    Date timeInput = null;
+    Date timeEstimatedFinish = null;
+    Long corporationId = null;
+    Corporation corporation = null;
+    Set<Long> assignedStaffIdSet = null;
+    Set<Long> managerIdSet = null;
+
+    // TODO: assuming there is only one role associate to a user
+    for (UserRole role : allowedRoleSet) {
+      switch (role.getName()) {
+          // Assuming there are only three roles supported in backend.
+        case "ROLE_ADMIN":
+          validationService.validateTaskDTOAndSetForAdmin(taskDTO, task);
+          // REQUIRED field for task: 1. extract task name
+          name = taskDTO.getName();
+          validationService.validateTaskNameForAdmin(name, task);
+          // REQUIRED field for task: 2. extract task status
+          taskStatusString = taskDTO.getTaskStatusString();
+          validationService.validateTaskStatusStringAndSetForAdmin(taskStatusString, task);
+          // OPTIONAL field for task: 3 extract task priority
+          taskPriorityString = taskDTO.getTaskPriorityString();
+          validationService.validateTaskPriorityStringAndSetForAdmin(taskPriorityString, task);
+          // OPTIONAL field for task: 4. extract task descriptions
+          description = taskDTO.getDescription();
+          validationService.validateTaskDescriptionAndSetForAdmin(description, task);
+          // OPTIONAL field for task: 5. extract task note
+          note = taskDTO.getNote();
+          validationService.validateTaskNoteAndSetForAdmin(note, task);
+          // OPTIONAL field for task: 6. extract task feedback
+          feedback = taskDTO.getFeedback();
+          validationService.validateTaskFeedbackAndSetForAdmin(feedback, task);
+          // REQUIRED field for task: 7. extract task input time (when the task is created by the
+          // user.)
+          timeInput = taskDTO.getTimeInput();
+          validationService.validateTaskTimeInputAndSetForAdmin(timeInput, task);
+          // REQUIRED field for task: 8. extract task estimated finish time and calculate task
+          // estimated durations.
+          timeEstimatedFinish = taskDTO.getTimeEstimatedFinish();
+          validationService.validateTaskTimeEstimatedFinishAndTaskTimeInputAndSetForAdmin(
+              timeEstimatedFinish, timeInput, task);
+          // REQUIRED field for task: 10. extract corporation from provided corporationId.
+          corporationId = taskDTO.getCorporationId();
+          corporation =
+              validationService.validateTaskCorporationIdAndSetForAdmin(
+                  corporationId, currentUser, task);
+          // REQUIRED field for task: 11. extract assigned staff list for this task from provided
+          // assigned staff id list.
+          assignedStaffIdSet = taskDTO.getAssignedStaffIdSet();
+          validationService.validateTaskAssignedStaffIdSetAndSetForAdmin(
+              assignedStaffIdSet, corporation, currentUser, task);
+          // REQUIRED field for task: 12. extract assigned manager list for this task from provided
+          // manager id list.
+          managerIdSet = taskDTO.getManagerIdSet();
+          validationService.validateTaskManagerIdSetAndSetForAdmin(
+              managerIdSet, corporation, currentUser, task);
+          break;
+        case "ROLE_USER_MANAGER":
+          validationService.validateTaskDTOAndSetForAdmin(taskDTO, task);
+          // REQUIRED field for task: 1. extract task name
+          name = taskDTO.getName();
+          validationService.validateTaskNameForAdmin(name, task);
+          // REQUIRED field for task: 2. extract task status
+          taskStatusString = taskDTO.getTaskStatusString();
+          validationService.validateTaskStatusStringAndSetForAdmin(taskStatusString, task);
+          // OPTIONAL field for task: 3 extract task priority
+          taskPriorityString = taskDTO.getTaskPriorityString();
+          validationService.validateTaskPriorityStringAndSetForAdmin(taskPriorityString, task);
+          // OPTIONAL field for task: 4. extract task descriptions
+          description = taskDTO.getDescription();
+          validationService.validateTaskDescriptionAndSetForAdmin(description, task);
+          // OPTIONAL field for task: 5. extract task note
+          note = taskDTO.getNote();
+          validationService.validateTaskNoteAndSetForAdmin(note, task);
+          // OPTIONAL field for task: 6. extract task feedback
+          feedback = taskDTO.getFeedback();
+          validationService.validateTaskFeedbackAndSetForAdmin(feedback, task);
+          // REQUIRED field for task: 7. extract task input time (when the task is created by the
+          // user.)
+          timeInput = taskDTO.getTimeInput();
+          validationService.validateTaskTimeInputAndSetForAdmin(timeInput, task);
+          // REQUIRED field for task: 8. extract task estimated finish time and calculate task
+          // estimated durations.
+          timeEstimatedFinish = taskDTO.getTimeEstimatedFinish();
+          validationService.validateTaskTimeEstimatedFinishAndTaskTimeInputAndSetForAdmin(
+              timeEstimatedFinish, timeInput, task);
+          // REQUIRED field for task: 10. extract corporation from provided corporationId.
+          corporationId = taskDTO.getCorporationId();
+          corporation =
+              validationService.validateTaskCorporationIdAndSetForAdmin(
+                  corporationId, currentUser, task);
+          // REQUIRED field for task: 11. extract assigned staff list for this task from provided
+          // assigned staff id list.
+          assignedStaffIdSet = taskDTO.getAssignedStaffIdSet();
+          validationService.validateTaskAssignedStaffIdSetAndSetForAdmin(
+              assignedStaffIdSet, corporation, currentUser, task);
+          // REQUIRED field for task: 12. extract assigned manager list for this task from provided
+          // manager id list.
+          managerIdSet = taskDTO.getManagerIdSet();
+          validationService.validateTaskManagerIdSetAndSetForAdmin(
+              managerIdSet, corporation, currentUser, task);
+          break;
+        case "ROLE_USER_STAFF":
+          validationService.validateTaskDTOAndSetForAdmin(taskDTO, task);
+          // REQUIRED field for task: 1. extract task name
+          name = taskDTO.getName();
+          validationService.validateTaskNameForAdmin(name, task);
+          // REQUIRED field for task: 2. extract task status
+          taskStatusString = taskDTO.getTaskStatusString();
+          validationService.validateTaskStatusStringAndSetForAdmin(taskStatusString, task);
+          // OPTIONAL field for task: 3 extract task priority
+          taskPriorityString = taskDTO.getTaskPriorityString();
+          validationService.validateTaskPriorityStringAndSetForAdmin(taskPriorityString, task);
+          // OPTIONAL field for task: 4. extract task descriptions
+          description = taskDTO.getDescription();
+          validationService.validateTaskDescriptionAndSetForAdmin(description, task);
+          // OPTIONAL field for task: 5. extract task note
+          note = taskDTO.getNote();
+          validationService.validateTaskNoteAndSetForAdmin(note, task);
+          // OPTIONAL field for task: 6. extract task feedback
+          feedback = taskDTO.getFeedback();
+          validationService.validateTaskFeedbackAndSetForAdmin(feedback, task);
+          // REQUIRED field for task: 7. extract task input time (when the task is created by the
+          // user.)
+          timeInput = taskDTO.getTimeInput();
+          validationService.validateTaskTimeInputAndSetForAdmin(timeInput, task);
+          // REQUIRED field for task: 8. extract task estimated finish time and calculate task
+          // estimated durations.
+          timeEstimatedFinish = taskDTO.getTimeEstimatedFinish();
+          validationService.validateTaskTimeEstimatedFinishAndTaskTimeInputAndSetForAdmin(
+              timeEstimatedFinish, timeInput, task);
+          // REQUIRED field for task: 10. extract corporation from provided corporationId.
+          corporationId = taskDTO.getCorporationId();
+          corporation =
+              validationService.validateTaskCorporationIdAndSetForAdmin(
+                  corporationId, currentUser, task);
+          // REQUIRED field for task: 11. extract assigned staff list for this task from provided
+          // assigned staff id list.
+          assignedStaffIdSet = taskDTO.getAssignedStaffIdSet();
+          validationService.validateTaskAssignedStaffIdSetAndSetForStaff(
+              assignedStaffIdSet, corporation, currentUser, task);
+          // REQUIRED field for task: 12. extract assigned manager list for this task from provided
+          // manager id list.
+          managerIdSet = taskDTO.getManagerIdSet();
+          validationService.validateTaskManagerIdSetAndSetForAdmin(
+              managerIdSet, corporation, currentUser, task);
+          break;
+        default:
+          throw ExceptionFactory.create(
+              ExceptionType.IllegalRequestBodyFieldsException,
+              String.format("Detected invalid role for user: %s", role.getName()));
+      }
+    }
+    return task;
+  }
+
+  private TaskDTO mapTaskToTaskDTO(Task task, TaskDTO taskDTO) {
+    if (task == null) {
+      throw ExceptionFactory.create(
+          ExceptionType.IllegalArgumentException,
+          "Mapping Task to TaskDTO failed: task cannot be null.");
+    }
+    if (taskDTO == null) {
+      taskDTO = new TaskDTO();
+    }
+    // Don't need to check task's fields.
+    taskDTO.setTaskId(task.getId());
+    taskDTO.setName(task.getName());
+    taskDTO.setTaskStatusString(task.getTaskStatus().name());
+    taskDTO.setTaskPriorityString(task.getTaskPriority().name());
+    taskDTO.setDescription(task.getDescription());
+    taskDTO.setNote(task.getNote());
+    taskDTO.setFeedback(task.getFeedback());
+    taskDTO.setTimeInput(task.getTimeInput());
+    taskDTO.setTimeEstimatedFinish(task.getTimeEstimatedFinish());
+    taskDTO.setCorporationId(task.getCorporation().getId());
+
+    Set<Long> assignedStaffIdSet = new HashSet<>();
+    Set<UserDTO> assignedStaffUserDTOSet = new HashSet<>();
+    for (User staff : task.getStaffSet()) {
+      assignedStaffIdSet.add(staff.getId());
+      UserDTO assignedStaffUserDTO = new UserDTO();
+      assignedStaffUserDTOSet.add(assignedStaffUserDTO);
+      assignedStaffUserDTO.setUserId(staff.getId());
+      assignedStaffUserDTO.setCorporationId(staff.getCorporation().getId());
+      assignedStaffUserDTO.setFullName(staff.getFullName());
+      assignedStaffUserDTO.setUsername(staff.getUsername());
+      assignedStaffUserDTO.setEmailAddress(staff.getEmailAddress());
+      assignedStaffUserDTO.setEnabled(staff.isEnabled());
+      assignedStaffUserDTO.setDeleted(staff.isDeleted());
+    }
+    taskDTO.setAssignedStaffIdSet(assignedStaffIdSet);
+    taskDTO.setAssignedStaffUserDTOSet(assignedStaffUserDTOSet);
+
+    Set<Long> managerIdSet = new HashSet<>();
+    Set<UserDTO> managerUserDTOSet = new HashSet<>();
+    for (User manager : task.getManagerSet()) {
+      managerIdSet.add(manager.getId());
+      UserDTO managerUserDTO = new UserDTO();
+      managerUserDTOSet.add(managerUserDTO);
+      managerUserDTO.setUserId(manager.getId());
+      managerUserDTO.setCorporationId(manager.getCorporation().getId());
+      managerUserDTO.setFullName(manager.getFullName());
+      managerUserDTO.setUsername(manager.getUsername());
+      managerUserDTO.setEmailAddress(manager.getEmailAddress());
+      managerUserDTO.setEnabled(manager.isEnabled());
+      managerUserDTO.setDeleted(manager.isDeleted());
+    }
+    taskDTO.setManagerIdSet(managerIdSet);
+    taskDTO.setManagerUserDTOSet(managerUserDTOSet);
+    return taskDTO;
+  }
+
+  private TaskTemplateDTO mapTaskTemplateToTaskTemplateDTO(
+      TaskTemplate taskTemplate, TaskTemplateDTO taskTemplateDTO) {
+    if (taskTemplate == null) {
+      throw ExceptionFactory.create(
+          ExceptionType.IllegalArgumentException,
+          "Mapping TaskTemplate to TaskTemplateDTO failed: taskTemplate cannot be null.");
+    }
+    if (taskTemplateDTO == null) {
+      taskTemplateDTO = new TaskTemplateDTO();
+    }
+    taskTemplateDTO.setTaskTemplateId(taskTemplate.getId());
+    taskTemplateDTO.setName(taskTemplate.getName());
+    taskTemplateDTO.setDescription(taskTemplate.getDescription());
+    taskTemplateDTO.setNote(taskTemplate.getNote());
+    taskTemplateDTO.setTaskPriorityString(taskTemplate.getTaskPriority().name());
+    taskTemplateDTO.setEstimatedDuration(taskTemplate.getEstimatedDuration());
+    taskTemplateDTO.setRecurring(taskTemplate.isRecurring());
+    taskTemplateDTO.setRecurringPeriodCronExpression(
+        taskTemplate.getRecurringPeriodCronExpression());
+    taskTemplateDTO.setCorporationId(taskTemplate.getCorporation().getId());
+
+    Set<Long> assignedStaffIdSet = new HashSet<>();
+    Set<UserDTO> assignedStaffUserDTOSet = new HashSet<>();
+    for (User staff : taskTemplate.getStaffSet()) {
+      assignedStaffIdSet.add(staff.getId());
+      UserDTO assignedStaffUserDTO = new UserDTO();
+      assignedStaffUserDTOSet.add(assignedStaffUserDTO);
+      assignedStaffUserDTO.setUserId(staff.getId());
+      assignedStaffUserDTO.setCorporationId(staff.getCorporation().getId());
+      assignedStaffUserDTO.setFullName(staff.getFullName());
+      assignedStaffUserDTO.setUsername(staff.getUsername());
+      assignedStaffUserDTO.setEmailAddress(staff.getEmailAddress());
+      assignedStaffUserDTO.setEnabled(staff.isEnabled());
+      assignedStaffUserDTO.setDeleted(staff.isDeleted());
+    }
+    taskTemplateDTO.setAssignedStaffIdSet(assignedStaffIdSet);
+    taskTemplateDTO.setAssignedStaffUserDTOSet(assignedStaffUserDTOSet);
+
+    Set<Long> managerIdSet = new HashSet<>();
+    Set<UserDTO> managerUserDTOSet = new HashSet<>();
+    for (User manager : taskTemplate.getManagerSet()) {
+      managerIdSet.add(manager.getId());
+      UserDTO managerUserDTO = new UserDTO();
+      managerUserDTOSet.add(managerUserDTO);
+      managerUserDTO.setUserId(manager.getId());
+      managerUserDTO.setCorporationId(manager.getCorporation().getId());
+      managerUserDTO.setFullName(manager.getFullName());
+      managerUserDTO.setUsername(manager.getUsername());
+      managerUserDTO.setEmailAddress(manager.getEmailAddress());
+      managerUserDTO.setEnabled(manager.isEnabled());
+      managerUserDTO.setDeleted(manager.isDeleted());
+    }
+    taskTemplateDTO.setManagerIdSet(managerIdSet);
+    taskTemplateDTO.setManagerUserDTOSet(managerUserDTOSet);
+    return taskTemplateDTO;
   }
 
   private TaskTemplate mapTaskTemplateDTOToTaskTemplate(
@@ -405,252 +711,6 @@ public class TaskService {
     return taskTemplate;
   }
 
-  private Task mapTaskDTOToTask(User currentUser, TaskDTO taskDTO, Task task) {
-    if (task == null) {
-      task = new Task();
-    }
-
-    Set<UserRole> allowedRoleSet = currentUser.getAllowedRoleSet();
-    String name = null;
-    String taskStatusString = null;
-    String taskPriorityString = null;
-    String description = null;
-    String note = null;
-    String feedback = null;
-    Date timeInput = null;
-    Date timeEstimatedFinish = null;
-    boolean isRecurring = false;
-    String recurringPeriodCronExpression = null;
-    Long corporationId = null;
-    Corporation corporation = null;
-    Set<Long> assignedStaffIdSet = null;
-    Set<Long> managerIdSet = null;
-
-    // TODO: assuming there is only one role associate to a user
-    for (UserRole role : allowedRoleSet) {
-      switch (role.getName()) {
-          // Assuming there are only three roles supported in backend.
-        case "ROLE_ADMIN":
-          validationService.validateTaskDTOAndSetForAdmin(taskDTO, task);
-          // REQUIRED field for task: 1. extract task name
-          name = taskDTO.getName();
-          validationService.validateTaskNameForAdmin(name, task);
-          // REQUIRED field for task: 2. extract task status
-          taskStatusString = taskDTO.getTaskStatusString();
-          validationService.validateTaskStatusStringAndSetForAdmin(taskStatusString, task);
-          // OPTIONAL field for task: 3 extract task priority
-          taskPriorityString = taskDTO.getTaskPriorityString();
-          validationService.validateTaskPriorityStringAndSetForAdmin(taskPriorityString, task);
-          // OPTIONAL field for task: 4. extract task descriptions
-          description = taskDTO.getDescription();
-          validationService.validateTaskDescriptionAndSetForAdmin(description, task);
-          // OPTIONAL field for task: 5. extract task note
-          note = taskDTO.getNote();
-          validationService.validateTaskNoteAndSetForAdmin(note, task);
-          // OPTIONAL field for task: 6. extract task feedback
-          feedback = taskDTO.getFeedback();
-          validationService.validateTaskFeedbackAndSetForAdmin(feedback, task);
-          // REQUIRED field for task: 7. extract task input time (when the task is created by the
-          // user.)
-          timeInput = taskDTO.getTimeInput();
-          validationService.validateTaskTimeInputAndSetForAdmin(timeInput, task);
-          // REQUIRED field for task: 8. extract task estimated finish time and calculate task
-          // estimated durations.
-          timeEstimatedFinish = taskDTO.getTimeEstimatedFinish();
-          validationService.validateTaskTimeEstimatedFinishAndTaskTimeInputAndSetForAdmin(
-              timeEstimatedFinish, timeInput, task);
-          // OPTIONAL field for task: 9. extract if the task is recurring task or not.
-          isRecurring = taskDTO.isRecurring();
-          recurringPeriodCronExpression = taskDTO.getRecurringPeriodCronExpression();
-          validationService
-              .validateTaskIsrecurringAndTaskRecurringPeriodCronExpressionAndSetForAdmin(
-                  isRecurring, recurringPeriodCronExpression, task);
-          // REQUIRED field for task: 10. extract corporation from provided corporationId.
-          corporationId = taskDTO.getCorporationId();
-          corporation =
-              validationService.validateTaskCorporationIdAndSetForAdmin(
-                  corporationId, currentUser, task);
-          // REQUIRED field for task: 11. extract assigned staff list for this task from provided
-          // assigned staff id list.
-          assignedStaffIdSet = taskDTO.getAssignedStaffIdSet();
-          validationService.validateTaskAssignedStaffIdSetAndSetForAdmin(
-              assignedStaffIdSet, corporation, currentUser, task);
-          // REQUIRED field for task: 12. extract assigned manager list for this task from provided
-          // manager id list.
-          managerIdSet = taskDTO.getManagerIdSet();
-          validationService.validateTaskManagerIdSetAndSetForAdmin(
-              managerIdSet, corporation, currentUser, task);
-          break;
-        case "ROLE_USER_MANAGER":
-          validationService.validateTaskDTOAndSetForAdmin(taskDTO, task);
-          // REQUIRED field for task: 1. extract task name
-          name = taskDTO.getName();
-          validationService.validateTaskNameForAdmin(name, task);
-          // REQUIRED field for task: 2. extract task status
-          taskStatusString = taskDTO.getTaskStatusString();
-          validationService.validateTaskStatusStringAndSetForAdmin(taskStatusString, task);
-          // OPTIONAL field for task: 3 extract task priority
-          taskPriorityString = taskDTO.getTaskPriorityString();
-          validationService.validateTaskPriorityStringAndSetForAdmin(taskPriorityString, task);
-          // OPTIONAL field for task: 4. extract task descriptions
-          description = taskDTO.getDescription();
-          validationService.validateTaskDescriptionAndSetForAdmin(description, task);
-          // OPTIONAL field for task: 5. extract task note
-          note = taskDTO.getNote();
-          validationService.validateTaskNoteAndSetForAdmin(note, task);
-          // OPTIONAL field for task: 6. extract task feedback
-          feedback = taskDTO.getFeedback();
-          validationService.validateTaskFeedbackAndSetForAdmin(feedback, task);
-          // REQUIRED field for task: 7. extract task input time (when the task is created by the
-          // user.)
-          timeInput = taskDTO.getTimeInput();
-          validationService.validateTaskTimeInputAndSetForAdmin(timeInput, task);
-          // REQUIRED field for task: 8. extract task estimated finish time and calculate task
-          // estimated durations.
-          timeEstimatedFinish = taskDTO.getTimeEstimatedFinish();
-          validationService.validateTaskTimeEstimatedFinishAndTaskTimeInputAndSetForAdmin(
-              timeEstimatedFinish, timeInput, task);
-          // OPTIONAL field for task: 9. extract if the task is recurring task or not.
-          isRecurring = taskDTO.isRecurring();
-          recurringPeriodCronExpression = taskDTO.getRecurringPeriodCronExpression();
-          validationService
-              .validateTaskIsrecurringAndTaskRecurringPeriodCronExpressionAndSetForAdmin(
-                  isRecurring, recurringPeriodCronExpression, task);
-          // REQUIRED field for task: 10. extract corporation from provided corporationId.
-          corporationId = taskDTO.getCorporationId();
-          corporation =
-              validationService.validateTaskCorporationIdAndSetForAdmin(
-                  corporationId, currentUser, task);
-          // REQUIRED field for task: 11. extract assigned staff list for this task from provided
-          // assigned staff id list.
-          assignedStaffIdSet = taskDTO.getAssignedStaffIdSet();
-          validationService.validateTaskAssignedStaffIdSetAndSetForAdmin(
-              assignedStaffIdSet, corporation, currentUser, task);
-          // REQUIRED field for task: 12. extract assigned manager list for this task from provided
-          // manager id list.
-          managerIdSet = taskDTO.getManagerIdSet();
-          validationService.validateTaskManagerIdSetAndSetForAdmin(
-              managerIdSet, corporation, currentUser, task);
-          break;
-        case "ROLE_USER_STAFF":
-          validationService.validateTaskDTOAndSetForAdmin(taskDTO, task);
-          // REQUIRED field for task: 1. extract task name
-          name = taskDTO.getName();
-          validationService.validateTaskNameForAdmin(name, task);
-          // REQUIRED field for task: 2. extract task status
-          taskStatusString = taskDTO.getTaskStatusString();
-          validationService.validateTaskStatusStringAndSetForAdmin(taskStatusString, task);
-          // OPTIONAL field for task: 3 extract task priority
-          taskPriorityString = taskDTO.getTaskPriorityString();
-          validationService.validateTaskPriorityStringAndSetForAdmin(taskPriorityString, task);
-          // OPTIONAL field for task: 4. extract task descriptions
-          description = taskDTO.getDescription();
-          validationService.validateTaskDescriptionAndSetForAdmin(description, task);
-          // OPTIONAL field for task: 5. extract task note
-          note = taskDTO.getNote();
-          validationService.validateTaskNoteAndSetForAdmin(note, task);
-          // OPTIONAL field for task: 6. extract task feedback
-          feedback = taskDTO.getFeedback();
-          validationService.validateTaskFeedbackAndSetForAdmin(feedback, task);
-          // REQUIRED field for task: 7. extract task input time (when the task is created by the
-          // user.)
-          timeInput = taskDTO.getTimeInput();
-          validationService.validateTaskTimeInputAndSetForAdmin(timeInput, task);
-          // REQUIRED field for task: 8. extract task estimated finish time and calculate task
-          // estimated durations.
-          timeEstimatedFinish = taskDTO.getTimeEstimatedFinish();
-          validationService.validateTaskTimeEstimatedFinishAndTaskTimeInputAndSetForAdmin(
-              timeEstimatedFinish, timeInput, task);
-          // OPTIONAL field for task: 9. extract if the task is recurring task or not.
-          isRecurring = taskDTO.isRecurring();
-          recurringPeriodCronExpression = taskDTO.getRecurringPeriodCronExpression();
-          validationService
-              .validateTaskIsrecurringAndTaskRecurringPeriodCronExpressionAndSetForAdmin(
-                  isRecurring, recurringPeriodCronExpression, task);
-          // REQUIRED field for task: 10. extract corporation from provided corporationId.
-          corporationId = taskDTO.getCorporationId();
-          corporation =
-              validationService.validateTaskCorporationIdAndSetForAdmin(
-                  corporationId, currentUser, task);
-          // REQUIRED field for task: 11. extract assigned staff list for this task from provided
-          // assigned staff id list.
-          assignedStaffIdSet = taskDTO.getAssignedStaffIdSet();
-          validationService.validateTaskAssignedStaffIdSetAndSetForStaff(
-              assignedStaffIdSet, corporation, currentUser, task);
-          // REQUIRED field for task: 12. extract assigned manager list for this task from provided
-          // manager id list.
-          managerIdSet = taskDTO.getManagerIdSet();
-          validationService.validateTaskManagerIdSetAndSetForAdmin(
-              managerIdSet, corporation, currentUser, task);
-          break;
-        default:
-          throw ExceptionFactory.create(
-              ExceptionType.IllegalRequestBodyFieldsException,
-              String.format("Detected invalid role for user: %s", role.getName()));
-      }
-    }
-    return task;
-  }
-
-  private TaskDTO mapTaskToTaskDTO(Task task, TaskDTO taskDTO) {
-    if (task == null) {
-      throw ExceptionFactory.create(
-          ExceptionType.IllegalArgumentException,
-          "Mapping Task to TaskDTO failed: task cannot be null.");
-    }
-    if (taskDTO == null) {
-      taskDTO = new TaskDTO();
-    }
-    // Don't need to check task's fields.
-    taskDTO.setTaskId(task.getId());
-    taskDTO.setName(task.getName());
-    taskDTO.setTaskStatusString(task.getTaskStatus().name());
-    taskDTO.setTaskPriorityString(task.getTaskPriority().name());
-    taskDTO.setDescription(task.getDescription());
-    taskDTO.setNote(task.getNote());
-    taskDTO.setFeedback(task.getFeedback());
-    taskDTO.setTimeInput(task.getTimeInput());
-    taskDTO.setTimeEstimatedFinish(task.getTimeEstimatedFinish());
-    taskDTO.setRecurring(task.isRecurring());
-    taskDTO.setRecurringPeriodCronExpression(task.getRecurringPeriodCronExpression());
-    taskDTO.setCorporationId(task.getCorporation().getId());
-
-    Set<Long> assignedStaffIdSet = new HashSet<>();
-    Set<UserDTO> assignedStaffUserDTOSet = new HashSet<>();
-    for (User staff : task.getStaffSet()) {
-      assignedStaffIdSet.add(staff.getId());
-      UserDTO assignedStaffUserDTO = new UserDTO();
-      assignedStaffUserDTOSet.add(assignedStaffUserDTO);
-      assignedStaffUserDTO.setUserId(staff.getId());
-      assignedStaffUserDTO.setCorporationId(staff.getCorporation().getId());
-      assignedStaffUserDTO.setFullName(staff.getFullName());
-      assignedStaffUserDTO.setUsername(staff.getUsername());
-      assignedStaffUserDTO.setEmailAddress(staff.getEmailAddress());
-      assignedStaffUserDTO.setEnabled(staff.isEnabled());
-      assignedStaffUserDTO.setDeleted(staff.isDeleted());
-    }
-    taskDTO.setAssignedStaffIdSet(assignedStaffIdSet);
-    taskDTO.setAssignedStaffUserDTOSet(assignedStaffUserDTOSet);
-
-    Set<Long> managerIdSet = new HashSet<>();
-    Set<UserDTO> managerUserDTOSet = new HashSet<>();
-    for (User manager : task.getManagerSet()) {
-      managerIdSet.add(manager.getId());
-      UserDTO managerUserDTO = new UserDTO();
-      managerUserDTOSet.add(managerUserDTO);
-      managerUserDTO.setUserId(manager.getId());
-      managerUserDTO.setCorporationId(manager.getCorporation().getId());
-      managerUserDTO.setFullName(manager.getFullName());
-      managerUserDTO.setUsername(manager.getUsername());
-      managerUserDTO.setEmailAddress(manager.getEmailAddress());
-      managerUserDTO.setEnabled(manager.isEnabled());
-      managerUserDTO.setDeleted(manager.isDeleted());
-    }
-    taskDTO.setManagerIdSet(managerIdSet);
-    taskDTO.setManagerUserDTOSet(managerUserDTOSet);
-    return taskDTO;
-  }
-
   private List<TaskDTO> mapTaskListToTaskDTOList(List<Task> taskList, List<TaskDTO> taskDTOList) {
     if (taskList == null || taskList.isEmpty()) {
       throw ExceptionFactory.create(
@@ -666,86 +726,6 @@ public class TaskService {
       taskDTOList.add(taskDTO);
     }
     return taskDTOList;
-  }
-
-  private TaskTemplate mapTaskToTaskTemplate(Task task, TaskTemplate taskTemplate) {
-    if (task == null) {
-      throw ExceptionFactory.create(
-          ExceptionType.IllegalArgumentException,
-          "Mapping Task to TaskTemplate failed: task cannot be null.");
-    }
-    if (taskTemplate == null) {
-      taskTemplate = new TaskTemplate();
-    }
-    taskTemplate.setName(task.getName());
-    taskTemplate.setDescription(task.getDescription());
-    taskTemplate.setNote(task.getNote());
-    taskTemplate.setTaskPriority(task.getTaskPriority());
-    taskTemplate.setEstimatedDuration(
-        task.getTimeEstimatedFinish().getTime() - task.getTimeInput().getTime());
-    taskTemplate.setRecurring(task.isRecurring());
-    taskTemplate.setRecurringPeriodCronExpression(task.getRecurringPeriodCronExpression());
-    taskTemplate.setCorporation(task.getCorporation());
-    taskTemplate.setStaffSet(task.getStaffSet());
-    taskTemplate.setManagerSet(task.getManagerSet());
-    return taskTemplate;
-  }
-
-  private TaskTemplateDTO mapTaskTemplateToTaskTemplateDTO(
-      TaskTemplate taskTemplate, TaskTemplateDTO taskTemplateDTO) {
-    if (taskTemplate == null) {
-      throw ExceptionFactory.create(
-          ExceptionType.IllegalArgumentException,
-          "Mapping TaskTemplate to TaskTemplateDTO failed: taskTemplate cannot be null.");
-    }
-    if (taskTemplateDTO == null) {
-      taskTemplateDTO = new TaskTemplateDTO();
-    }
-    taskTemplateDTO.setTaskTemplateId(taskTemplate.getId());
-    taskTemplateDTO.setName(taskTemplate.getName());
-    taskTemplateDTO.setDescription(taskTemplate.getDescription());
-    taskTemplateDTO.setNote(taskTemplate.getNote());
-    taskTemplateDTO.setTaskPriorityString(taskTemplate.getTaskPriority().name());
-    taskTemplateDTO.setEstimatedDuration(taskTemplate.getEstimatedDuration());
-    taskTemplateDTO.setRecurring(taskTemplate.isRecurring());
-    taskTemplateDTO.setRecurringPeriodCronExpression(
-        taskTemplate.getRecurringPeriodCronExpression());
-    taskTemplateDTO.setCorporationId(taskTemplate.getCorporation().getId());
-
-    Set<Long> assignedStaffIdSet = new HashSet<>();
-    Set<UserDTO> assignedStaffUserDTOSet = new HashSet<>();
-    for (User staff : taskTemplate.getStaffSet()) {
-      assignedStaffIdSet.add(staff.getId());
-      UserDTO assignedStaffUserDTO = new UserDTO();
-      assignedStaffUserDTOSet.add(assignedStaffUserDTO);
-      assignedStaffUserDTO.setUserId(staff.getId());
-      assignedStaffUserDTO.setCorporationId(staff.getCorporation().getId());
-      assignedStaffUserDTO.setFullName(staff.getFullName());
-      assignedStaffUserDTO.setUsername(staff.getUsername());
-      assignedStaffUserDTO.setEmailAddress(staff.getEmailAddress());
-      assignedStaffUserDTO.setEnabled(staff.isEnabled());
-      assignedStaffUserDTO.setDeleted(staff.isDeleted());
-    }
-    taskTemplateDTO.setAssignedStaffIdSet(assignedStaffIdSet);
-    taskTemplateDTO.setAssignedStaffUserDTOSet(assignedStaffUserDTOSet);
-
-    Set<Long> managerIdSet = new HashSet<>();
-    Set<UserDTO> managerUserDTOSet = new HashSet<>();
-    for (User manager : taskTemplate.getManagerSet()) {
-      managerIdSet.add(manager.getId());
-      UserDTO managerUserDTO = new UserDTO();
-      managerUserDTOSet.add(managerUserDTO);
-      managerUserDTO.setUserId(manager.getId());
-      managerUserDTO.setCorporationId(manager.getCorporation().getId());
-      managerUserDTO.setFullName(manager.getFullName());
-      managerUserDTO.setUsername(manager.getUsername());
-      managerUserDTO.setEmailAddress(manager.getEmailAddress());
-      managerUserDTO.setEnabled(manager.isEnabled());
-      managerUserDTO.setDeleted(manager.isDeleted());
-    }
-    taskTemplateDTO.setManagerIdSet(managerIdSet);
-    taskTemplateDTO.setManagerUserDTOSet(managerUserDTOSet);
-    return taskTemplateDTO;
   }
 
   private List<TaskTemplateDTO> mapTaskTemplateListToTaskTemplateDTOList(
@@ -764,6 +744,50 @@ public class TaskService {
       taskTemplateDTOList.add(taskTemplateDTO);
     }
     return taskTemplateDTOList;
+  }
+
+  private TaskTemplate mapTaskToTaskTemplate(Task task, TaskTemplate taskTemplate) {
+    if (task == null) {
+      throw ExceptionFactory.create(
+          ExceptionType.IllegalArgumentException,
+          "Mapping Task to TaskTemplate failed: task cannot be null.");
+    }
+    if (taskTemplate == null) {
+      taskTemplate = new TaskTemplate();
+    }
+    taskTemplate.setName(task.getName());
+    taskTemplate.setDescription(task.getDescription());
+    taskTemplate.setNote(task.getNote());
+    taskTemplate.setTaskPriority(task.getTaskPriority());
+    taskTemplate.setEstimatedDuration(
+        task.getTimeEstimatedFinish().getTime() - task.getTimeInput().getTime());
+    taskTemplate.setCorporation(task.getCorporation());
+    taskTemplate.setStaffSet(task.getStaffSet());
+    taskTemplate.setManagerSet(task.getManagerSet());
+    return taskTemplate;
+  }
+
+  private Task mapTaskTemplateToTask(TaskTemplate taskTemplate, Task task) {
+    task.setName(taskTemplate.getName());
+    task.setDescription(taskTemplate.getDescription());
+    task.setNote(taskTemplate.getNote());
+    task.setTaskPriority(taskTemplate.getTaskPriority());
+    task.setStaffSet(taskTemplate.getStaffSet());
+    task.setManagerSet(taskTemplate.getManagerSet());
+    if (task.getStaffSet() != null
+        && task.getStaffSet().isEmpty()
+        && task.getManagerSet() != null
+        && task.getManagerSet().isEmpty()) {
+      task.setTaskStatus(TaskStatus.ASSIGNED);
+    } else {
+      task.setTaskStatus(TaskStatus.CREATED);
+    }
+    task.setCorporation(taskTemplate.getCorporation());
+    task.setTimeInput(new Date());
+    task.setTimeEstimatedFinish(
+        DateUtils.addMilliseconds(
+            task.getTimeInput(), toIntExact(taskTemplate.getEstimatedDuration())));
+    return task;
   }
 
   private List<Task> getTaskIdListForStaff(User staff) {

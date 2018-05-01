@@ -1,6 +1,6 @@
 package com.walmart.labs.util;
 
-import com.walmart.labs.domain.Task;
+import com.walmart.labs.domain.TaskTemplate;
 import com.walmart.labs.exception.ExceptionFactory;
 import com.walmart.labs.exception.ExceptionType;
 import java.util.Date;
@@ -25,29 +25,31 @@ public class CronJobService {
    * init() function will take a created/edited task as input. Extract recurring period cron job
    * expression and task id from task.
    *
-   * @param task task will provide id and recurring period cron expression for the task if it is a
-   *     recurring task.
+   * @param taskTemplate taskTemplate will provide id and recurring period cron expression for the
+   *     task if it is a recurring taskTemplate.
    */
-  public void init(Task task) {
-    String cronExpression = task.getRecurringPeriodCronExpression();
-    Long taskId = task.getId();
+  public void init(TaskTemplate taskTemplate) {
+    String cronExpression = taskTemplate.getRecurringPeriodCronExpression();
+    Long taskTemplateId = taskTemplate.getId();
     CronSequenceGenerator generator = new CronSequenceGenerator(cronExpression);
-    if (map.containsKey(taskId)) {
+    if (map.containsKey(taskTemplateId)) {
       logger.info(
-          String.format("updating cron sequence generator for task id %s", Long.toString(taskId)));
+          String.format(
+              "Updating cron sequence generator for task template id %s",
+              Long.toString(taskTemplateId)));
     }
-    map.put(taskId, generator);
+    map.put(taskTemplateId, generator);
   }
 
   /**
    * calculate the exact execution time for next running.
    *
-   * @param taskId
+   * @param taskTemplateId
    * @return
    */
-  public Date calculateNextJobExecutionDate(Long taskId) {
-    if (map.containsKey(taskId)) {
-      CronSequenceGenerator generator = map.get(taskId);
+  public Date calculateNextJobExecutionDate(Long taskTemplateId) {
+    if (map.containsKey(taskTemplateId)) {
+      CronSequenceGenerator generator = map.get(taskTemplateId);
       return generator.next(new Date());
     } else {
       throw ExceptionFactory.create(
@@ -59,12 +61,12 @@ public class CronJobService {
   /**
    * calculate cron job running period
    *
-   * @param taskId
+   * @param taskTemplateId
    * @return
    */
-  public long calculatePeriod(Long taskId) {
-    if (map.containsKey(taskId)) {
-      CronSequenceGenerator generator = map.get(taskId);
+  public long calculatePeriod(Long taskTemplateId) {
+    if (map.containsKey(taskTemplateId)) {
+      CronSequenceGenerator generator = map.get(taskTemplateId);
       Date firstExecutionDate = generator.next(new Date());
       Date secondExecutionDate = generator.next(firstExecutionDate);
       return secondExecutionDate.getTime() - firstExecutionDate.getTime();
