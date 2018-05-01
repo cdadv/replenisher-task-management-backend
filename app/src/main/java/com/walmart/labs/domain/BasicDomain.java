@@ -14,13 +14,23 @@ import javax.persistence.PreUpdate;
 
 @MappedSuperclass
 public abstract class BasicDomain implements Serializable {
+
+  /**
+   * Domain class who extend this basic domain class will be assign auto-incremented ids
+   * sequentially.
+   */
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  /** timeCreated is when domain objects are created and it is not updatable. */
   @Column(updatable = false)
   private Date timeCreated;
 
+  /**
+   * timeUpdated is the same as timeCreated if the domain object is created first. And it will be
+   * updated everytime there is an update for the object.
+   */
   private Date timeUpdated;
 
   @PrePersist

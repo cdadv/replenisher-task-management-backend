@@ -1,28 +1,68 @@
 package com.walmart.labs.domain;
 
-import java.util.List;
+import java.util.Set;
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Lob;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
+import org.hibernate.annotations.Type;
 
-/** For fields' documentations refer to {@link Task} domain */
+/**
+ * For fields' documentations refer to {@link Task} domain.
+ *
+ * <p>Difference between Task and TaskTemplate: TaskTemplate does not have TaskStatus, feedback,
+ * timeInput, timeEstimatedFinish (estimatedDuration instead),
+ */
 @Entity
-public class TaskTemplate {
+public class TaskTemplate extends BasicDomain {
   private String name;
 
-  @Lob private String description;
+  @Column(length = 65535, columnDefinition = "Text")
+  @Type(type = "text")
+  private String description;
 
-  @Lob private String note;
+  @Column(length = 65535, columnDefinition = "Text")
+  @Type(type = "text")
+  private String note;
+
+  @Enumerated(EnumType.STRING)
+  private TaskPriority taskPriority;
 
   /** Frontend can use duration to calculate the estimated finishing date */
   private long estimatedDuration;
 
+  /** boolean value to represent if the task is a recurring task */
   private boolean isRecurring;
 
+  /**
+   * if the boolean value above is true. This field is for defining the recurring periods with cron
+   * job expression.
+   *
+   * <p>TODO: may change to use enum class with WEEKLY, MONTHLY, etc expressions.
+   */
   private String recurringPeriodCronExpression;
 
-  private List<User> assignedStaffList;
+  @OneToOne private Corporation corporation;
 
-  private List<User> managerList;
+  @ManyToMany
+  @JoinTable(
+    name = "task_template_staff_user_mapping",
+    joinColumns = @JoinColumn(name = "task_template_id", referencedColumnName = "id"),
+    inverseJoinColumns = @JoinColumn(name = "staff_user_id", referencedColumnName = "id")
+  )
+  private Set<User> staffSet;
+
+  @ManyToMany
+  @JoinTable(
+    name = "task_template_manager_user_mapping",
+    joinColumns = @JoinColumn(name = "task_template_id", referencedColumnName = "id"),
+    inverseJoinColumns = @JoinColumn(name = "manager_user_id", referencedColumnName = "id")
+  )
+  private Set<User> managerSet;
 
   public String getName() {
     return name;
@@ -46,6 +86,14 @@ public class TaskTemplate {
 
   public void setNote(String note) {
     this.note = note;
+  }
+
+  public TaskPriority getTaskPriority() {
+    return taskPriority;
+  }
+
+  public void setTaskPriority(TaskPriority taskPriority) {
+    this.taskPriority = taskPriority;
   }
 
   public long getEstimatedDuration() {
@@ -72,19 +120,27 @@ public class TaskTemplate {
     this.recurringPeriodCronExpression = recurringPeriodCronExpression;
   }
 
-  public List<User> getAssignedStaffList() {
-    return assignedStaffList;
+  public Corporation getCorporation() {
+    return corporation;
   }
 
-  public void setAssignedStaffList(List<User> assignedStaffList) {
-    this.assignedStaffList = assignedStaffList;
+  public void setCorporation(Corporation corporation) {
+    this.corporation = corporation;
   }
 
-  public List<User> getManagerList() {
-    return managerList;
+  public Set<User> getStaffSet() {
+    return staffSet;
   }
 
-  public void setManagerList(List<User> managerList) {
-    this.managerList = managerList;
+  public void setStaffSet(Set<User> staffSet) {
+    this.staffSet = staffSet;
+  }
+
+  public Set<User> getManagerSet() {
+    return managerSet;
+  }
+
+  public void setManagerSet(Set<User> managerSet) {
+    this.managerSet = managerSet;
   }
 }

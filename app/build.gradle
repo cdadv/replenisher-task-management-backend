@@ -22,17 +22,30 @@ targetCompatibility = 1.8
 
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-web")
+    /**
+     * Test
+     */
     testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompileOnly('junit:junit:4.12')
+    testCompile('org.mockito:mockito-all:1.10.19')
     /**
      * Data
      */
     // JPA Data (We are going to use Repositories, Entities, Hibernate, etc...)
     compile('org.springframework.boot:spring-boot-starter-data-jpa')
+    // Spring Data Redis
+    compile("org.springframework.data:spring-data-redis:2.0.6.RELEASE")
+    compile("redis.clients:jedis:2.9.0")
     // Use MySQL Connector-J
     compile('mysql:mysql-connector-java')
-
     /**
      * Security
      */
     compile("org.springframework.boot:spring-boot-starter-security")
+    // Spring Security: OAuth2
+    compile("org.springframework.security.oauth:spring-security-oauth2:2.3.2.RELEASE")
+    /**
+     * Time
+     */
+    compile("org.apache.commons:commons-lang3:3.7")
 }
