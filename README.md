@@ -19,6 +19,7 @@ I pre-setup some demo account for logging in and play around in http://54.213.41
 	- id: 2, username: staff_user_1, password: staff_password_1
 	- id: 3, username: staff_user_2, password: staff_password_2 
 	- id: 4, username: staff_user_3, password: staff_password_3    
+(id will be used in task and task tempate creation dialog. If you want to assign a task to staff, please use id for staffIdSet and managerIdSet.)
 
 
 The endpoints of backend listed below are exposed (authentication is permitted for all user. Task and TaskTemplate endpoints are protected by authentication, you will need access_token to request.)
