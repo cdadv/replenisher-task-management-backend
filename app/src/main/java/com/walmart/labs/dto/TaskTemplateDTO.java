@@ -20,8 +20,7 @@ public class TaskTemplateDTO {
   private Set<Long> managerIdSet;
 
   // following two fields will be ignored during deserialization
-  @JsonIgnore
-  private Set<UserDTO> assignedStaffUserDTOSet;
+  @JsonIgnore private Set<UserDTO> assignedStaffUserDTOSet;
   @JsonIgnore private Set<UserDTO> managerUserDTOSet;
 
   public Long getTaskTemplateId() {
