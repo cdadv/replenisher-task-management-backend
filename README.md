@@ -9,16 +9,17 @@ I also **wrote a few unit tests in backend codes for simple testings.**
 I pre-setup some demo account for logging in and play around in http://54.213.41.232:4200/:     
 
 - Admin account: 
-	- admin_user:admin_password     
+	- id: 1, username: admin_user, password: admin_password     
 
 - Manager account: 
-	- manager_user_1:manager_password_1 
-	- manager_user_2:manager_password_2    
+	- id: 5, username: manager_user_1, password: manager_password_1 
+	- id: 6, username: manager_user_2, password: manager_password_2    
 
 - User account: 
-	- staff_user_1:staff_password_1
-	- staff_user_2:staff_password_2 
-	- staff_user_3:staff_password_3    
+	- id: 2, username: staff_user_1, password: staff_password_1
+	- id: 3, username: staff_user_2, password: staff_password_2 
+	- id: 4, username: staff_user_3, password: staff_password_3    
+(id will be used in task and task tempate creation dialog. If you want to assign a task to staff, please use id for staffIdSet and managerIdSet.)
 
 
 The endpoints of backend listed below are exposed (authentication is permitted for all user. Task and TaskTemplate endpoints are protected by authentication, you will need access_token to request.)
@@ -127,6 +128,9 @@ Step # 5: Exit and restart the MySQL server.
 `sudo /etc/init.d/mysql stop`	
 
 To start mysql server use command `sudo /etc/init.d/mysql start`
+
+create a new database in mysql called "task_management_db_mysql" by logging into mysql `mysql -u root` and `CREATE DATABASE task_management_db_mysql;`
+
 
 4. redis 
 
