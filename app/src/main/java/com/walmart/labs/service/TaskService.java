@@ -782,7 +782,7 @@ public class TaskService {
     } else {
       task.setTaskStatus(TaskStatus.CREATED);
     }
-    task.setCorporation(task.getCorporation());
+    task.setCorporation(taskTemplate.getCorporation());
     task.setTimeInput(new Date());
     task.setTimeEstimatedFinish(
         DateUtils.addMilliseconds(
