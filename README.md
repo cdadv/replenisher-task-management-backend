@@ -1,10 +1,10 @@
 # replenisher-task-management-backend
 ## How to use:
-I deployed backend and frontend to AWS server. You can try the app by using ip address and port number http://54.213.41.232:4200/ (I am aslo planning to setup DNS domain mapping for this ip address use Nginx in my AWS server. But use ip address to access for now.)    
+**I deployed backend and frontend to AWS server.** You can try the app by using ip address and port number http://54.213.41.232:4200/ (I am aslo planning to setup DNS domain mapping for this ip address use Nginx in my AWS server. But use ip address to access for now.)    
 
-You can test backend project by importing Postman file (under /libs directory) and send testing requests.
+You can test backend project by importing **Postman file (under /libs directory) and send testing requests.**
 
-I also wrote a few unit tests in backend codes for simple testings. 
+I also **wrote a few unit tests in backend codes for simple testings.** 
 
 I pre-setup some demo account for logging in and play around in http://54.213.41.232:4200/:     
 
@@ -23,7 +23,16 @@ I pre-setup some demo account for logging in and play around in http://54.213.41
 
 The endpoints of backend listed below are exposed (authentication is permitted for all user. Task and TaskTemplate endpoints are protected by authentication, you will need access_token to request.)
 
-## Requirements:
+## Tech stack I used:
+- For Backend:
+	- **Java** with **Spring** framework
+	- **MySql** for main data storage
+	- **Redis** for token with expiration date storage 
+- For Frontend:
+	- **TypeScript** with **Angular 5** framework
+	- **Angular Metrial Design** for styling and UI design
+	
+## Project goal illustration:
 I listed all the requirements from the spec sheet I got from WalmartLabs and demostrated how did I achieved these features.
 
 1. "individuals to create independent tasks to be added to their personalized task list.":   
