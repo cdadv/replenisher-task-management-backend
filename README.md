@@ -128,6 +128,9 @@ Step # 5: Exit and restart the MySQL server.
 
 To start mysql server use command `sudo /etc/init.d/mysql start`
 
+create a new database in mysql called "task_management_db_mysql" by logging into mysql `mysql -u root` and `CREATE DATABASE task_management_db_mysql;`
+
+
 4. redis 
 
 `wget http://download.redis.io/releases/redis-4.0.9.tar.gz`
