@@ -1,3 +1,5 @@
 rootProject.name = 'replenisher-task-management-backend'
-include 'app'
+include 'app:main'
+include 'app:test'
+
 
