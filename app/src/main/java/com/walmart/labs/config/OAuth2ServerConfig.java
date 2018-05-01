@@ -47,7 +47,7 @@ public class OAuth2ServerConfig {
           .authorizeRequests()
           //                    .antMatchers("/product/**").access("#oauth2.hasScope('select') and
           // hasRole('ROLE_USER')")
-          .antMatchers("/task/**", "/another/endpoint/**")
+          .antMatchers("/task/**", "/user/**")
           .authenticated();
       // @formatter:on
     }
