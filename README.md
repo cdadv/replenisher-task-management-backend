@@ -9,16 +9,16 @@ I also **wrote a few unit tests in backend codes for simple testings.**
 I pre-setup some demo account for logging in and play around in http://54.213.41.232:4200/:     
 
 - Admin account: 
-	- admin_user:admin_password     
+	- id:1 - admin_user:admin_password     
 
 - Manager account: 
-	- manager_user_1:manager_password_1 
-	- manager_user_2:manager_password_2    
+	- id:5 - manager_user_1:manager_password_1 
+	- id:6 - manager_user_2:manager_password_2    
 
 - User account: 
-	- staff_user_1:staff_password_1
-	- staff_user_2:staff_password_2 
-	- staff_user_3:staff_password_3    
+	- id:2 - staff_user_1:staff_password_1
+	- id:3 - staff_user_2:staff_password_2 
+	- id:4 - staff_user_3:staff_password_3    
 
 
 The endpoints of backend listed below are exposed (authentication is permitted for all user. Task and TaskTemplate endpoints are protected by authentication, you will need access_token to request.)
