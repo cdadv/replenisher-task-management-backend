@@ -7,6 +7,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,7 +35,7 @@ public class User extends BasicDomain implements UserDetails {
   @ManyToMany(mappedBy = "managerSet", fetch = FetchType.EAGER)
   private Set<TaskTemplate> managerTaskTemplateSet;
 
-  @OneToOne private Corporation corporation;
+  @ManyToOne private Corporation corporation;
 
   private String username;
 

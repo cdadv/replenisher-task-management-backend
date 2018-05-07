@@ -8,6 +8,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import org.hibernate.annotations.Type;
 
@@ -46,7 +47,7 @@ public class TaskTemplate extends BasicDomain {
    */
   private String recurringPeriodCronExpression;
 
-  @OneToOne private Corporation corporation;
+  @ManyToOne private Corporation corporation;
 
   @ManyToMany
   @JoinTable(

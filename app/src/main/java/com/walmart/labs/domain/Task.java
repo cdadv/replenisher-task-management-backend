@@ -9,6 +9,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import org.hibernate.annotations.Type;
 
@@ -60,7 +61,7 @@ public class Task extends BasicDomain {
    */
   private Date timeEstimatedFinish;
 
-  @OneToOne private Corporation corporation;
+  @ManyToOne private Corporation corporation;
 
   /** List of staff that are assigned to this task */
   @ManyToMany

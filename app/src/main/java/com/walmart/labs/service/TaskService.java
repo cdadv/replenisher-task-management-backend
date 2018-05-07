@@ -793,21 +793,27 @@ public class TaskService {
   private List<Task> getTaskIdListForStaff(User staff) {
     List<TaskStaffUserMapping> taskStaffUserMappingRepositoryList =
         taskStaffUserMappingRepository.findAllByStaff(staff);
-    List<Long> taskIdList = new ArrayList<>();
+//    List<Long> taskIdList = new ArrayList<>();
+    List<Task> taskList = new ArrayList<>();
     for (TaskStaffUserMapping taskStaffUserMapping : taskStaffUserMappingRepositoryList) {
-      taskIdList.add(taskStaffUserMapping.getTask().getId());
+//      taskIdList.add(taskStaffUserMapping.getTask().getId());
+      taskList.add(taskStaffUserMapping.getTask());
     }
-    return getTaskList(taskIdList);
+//    return getTaskList(taskIdList);
+    return taskList;
   }
 
   private List<Task> getTaskIdListForManager(User manager) {
     List<TaskManagerUserMapping> taskManagerUserMappingRepositoryList =
         taskManagerUserMappingRepository.findAllByManager(manager);
-    List<Long> taskIdList = new ArrayList<>();
+//    List<Long> taskIdList = new ArrayList<>();
+    List<Task> taskList = new ArrayList<>();
     for (TaskManagerUserMapping taskManagerUserMapping : taskManagerUserMappingRepositoryList) {
-      taskIdList.add(taskManagerUserMapping.getTask().getId());
+//      taskIdList.add(taskManagerUserMapping.getTask().getId());
+      taskList.add(taskManagerUserMapping.getTask());
     }
-    return getTaskList(taskIdList);
+    return taskList;
+//    return getTaskList(taskIdList);
   }
 
   private List<Task> getTaskIdListForAdmin(User admin) {
